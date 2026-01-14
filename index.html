@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buscador de Protocolos</title>
+    <style>
+        /* --- CONFIGURACIÓN GENERAL Y MODO OSCURO --- */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212; /* Fondo muy oscuro */
+            color: #e0e0e0; /* Texto claro */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- CONTENEDOR RESPONSIVO --- */
+        .container {
+            background-color: #1e1e1e; /* Tarjeta gris oscura */
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+            width: 90%; /* Ocupa casi todo el ancho en celular */
+            max-width: 500px; /* Ancho máximo en PC */
+            text-align: center;
+            border: 1px solid #333;
+        }
+
+        h1 {
+            color: #ffffff;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* --- BARRA DE ESTADO --- */
+        .status-bar {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .status-loading { background-color: #333; color: #aaa; border: 1px solid #444; }
+        .status-success { background-color: #1b5e20; color: #a5d6a7; border: 1px solid #2e7d32; }
+        .status-error   { background-color: #b71c1c; color: #ffcdd2; border: 1px solid #d32f2f; }
+
+        /* --- INPUT (ENTRADA DE TEXTO) --- */
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 2px solid #444;
+            border-radius: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            box-sizing: border-box; /* Para que el padding no rompa el ancho */
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus {
+            border-color: #4dabf7; /* Azul brillante al escribir */
+            outline: none;
+            background-color: #383838;
+        }
+        ::placeholder { color: #666; }
+
+        /* --- TARJETA DE RESULTADOS --- */
+        .result-card {
+            display: none;
+            margin-top: 25px;
+            padding: 20px;
+            border: 2px solid #4dabf7;
+            border-radius: 12px;
+            background-color: #232b35; /* Un tono azulado muy oscuro */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .result-card.show { display: block; animation: slideUp 0.3s ease-out; }
+
+        .label {
+            font-size: 0.85rem;
+            color: #bbb;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .lote-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 15px;
+            word-wrap: break-word; /* Evita que nombres largos rompan el diseño */
+        }
+
+        .big-number {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #4dabf7; /* Azul neón */
+            display: block;
+            margin: 5px 0 15px 0;
+            line-height: 1;
+        }
+
+        .details {
+            color: #aaa;
+            font-size: 0.95rem;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .original-id {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .error-msg {
+            color: #ff5252;
+            font-weight: bold;
+            display: none;
+            margin-top: 15px;
+            background: rgba(255, 82, 82, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* --- ANIMACIÓN --- */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📍 Localizador</h1>
+    
+    <div id="status" class="status-bar status-loading">Cargando datos...</div>
+
+    <input type="text" id="searchInput" placeholder="Escribe ID (ej. 26964)" disabled autocomplete="off">
+    <div id="errorMsg" class="error-msg">❌ ID NO ENCONTRADO</div>
+
+    <div id="result" class="result-card">
+        <div class="label">Pertenece al Lote:</div>
+        <div class="lote-name" id="resLote">--</div>
+        
+        <div class="label">Posición en Carpeta:</div>
+        <span class="big-number" id="resPos">--</span>
+        
+        <div class="details" id="resDetails"></div>
+        <div class="original-id" id="resOriginalId"></div>
+    </div>
+</div>
+
+<script>
+    const DATA_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
+    
+    let dbIndex = {}; 
+    const statusEl = document.getElementById('status');
+    const inputEl = document.getElementById('searchInput');
+    const resultEl = document.getElementById('result');
+    const errorEl = document.getElementById('errorMsg');
+
+    // Cargar datos
+    fetch(DATA_URL)
+        .then(res => {
+            if (!res.ok) throw new Error("Error red");
+            return res.json();
+        })
+        .then(data => {
+            procesarDatos(data);
+            statusEl.textContent = `✅ Base de datos lista (${data.length} registros)`;
+            statusEl.className = 'status-bar status-success';
+            inputEl.disabled = false;
+            inputEl.focus();
+        })
+        .catch(err => {
+            console.error(err);
+            statusEl.innerHTML = `⚠️ Error de carga. <a href="#" onclick="location.reload()" style="color:#fff">Reintentar</a>`;
+            statusEl.className = 'status-bar status-error';
+        });
+
+    function procesarDatos(jsonArray) {
+        const lotesTemp = {};
+        
+        jsonArray.forEach(item => {
+            const lote = item.Lote || "SIN_LOTE";
+            if (!lotesTemp[lote]) lotesTemp[lote] = [];
+            lotesTemp[lote].push(item);
+        });
+
+        for (const lote in lotesTemp) {
+            const items = lotesTemp[lote];
+            items.forEach((item, index) => {
+                const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
+                if (idFull) {
+                    const info = {
+                        lote: lote,
+                        posicion: index + 1,
+                        extra: item.Etiqueta || "",
+                        idReal: idFull
+                    };
+
+                    // Guardar ID completo
+                    dbIndex[idFull] = info;
+
+                    // Guardar ID numérico si tiene prefijo MC
+                    if (idFull.startsWith("MC")) {
+                        const idNum = idFull.replace("MC", "");
+                        if (!dbIndex[idNum]) dbIndex[idNum] = info;
+                    }
+                }
+            });
+        }
+    }
+
+    inputEl.addEventListener('input', (e) => {
+        let query = e.target.value.trim().toUpperCase();
+        
+        if (query.length === 0) {
+            resultEl.classList.remove('show');
+            errorEl.style.display = 'none';
+            return;
+        }
+
+        const match = dbIndex[query];
+
+        if (match) {
+            document.getElementById('resLote').textContent = match.lote;
+            document.getElementById('resPos').textContent = "#" + match.posicion;
+            document.getElementById('resDetails').textContent = match.extra;
+            document.getElementById('resOriginalId').textContent = match.idReal;
+            
+            resultEl.classList.add('show');
+            errorEl.style.display = 'none';
+        } else {
+            resultEl.classList.remove('show');
+            if (query.length > 3) errorEl.style.display = 'block';
+            else errorEl.style.display = 'none';
+        }
+    });
+
+    // Evitar que el scanner envíe submits
+    inputEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') e.preventDefault();
+    });
+</script>
+
+</body>
+</html>
