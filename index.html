@@ -3,53 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Buscador de Protocolos</title>
+    <title>Buscador PRO de Protocolos</title>
     <style>
-        /* --- CONFIGURACIÓN GENERAL Y MODO OSCURO --- */
+        /* --- ESTILOS GENERALES (Dark Mode) --- */
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212; /* Fondo muy oscuro */
-            color: #e0e0e0; /* Texto claro */
+            background-color: #121212;
+            color: #e0e0e0;
             margin: 0;
-            padding: 0;
+            padding: 20px 10px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
             min-height: 100vh;
         }
 
-        /* --- CONTENEDOR RESPONSIVO --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            background-color: #1e1e1e; /* Tarjeta gris oscura */
+            background-color: #1e1e1e;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
-            width: 90%; /* Ocupa casi todo el ancho en celular */
-            max-width: 500px; /* Ancho máximo en PC */
+            width: 100%;
+            max-width: 500px;
             text-align: center;
             border: 1px solid #333;
+            box-sizing: border-box;
+            position: relative;
         }
 
-        h1 {
-            color: #ffffff;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            letter-spacing: 1px;
-        }
+        h1 { margin: 0 0 15px 0; font-size: 1.5rem; color: #fff; }
 
-        /* --- BARRA DE ESTADO --- */
-        .status-bar {
-            margin-bottom: 20px;
-            padding: 12px;
-            border-radius: 8px;
+        /* --- BOTÓN DE RESUMEN --- */
+        .btn-summary {
+            background: #2c3e50;
+            color: #aecbfa;
+            border: 1px solid #444;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
             font-size: 0.9rem;
-            font-weight: 500;
+            margin-bottom: 15px;
+            transition: background 0.2s;
         }
-        .status-loading { background-color: #333; color: #aaa; border: 1px solid #444; }
-        .status-success { background-color: #1b5e20; color: #a5d6a7; border: 1px solid #2e7d32; }
-        .status-error   { background-color: #b71c1c; color: #ffcdd2; border: 1px solid #d32f2f; }
+        .btn-summary:hover { background: #34495e; }
 
-        /* --- INPUT (ENTRADA DE TEXTO) --- */
+        /* --- INPUT --- */
         input[type="text"] {
             width: 100%;
             padding: 15px;
@@ -60,82 +59,73 @@
             border-radius: 8px;
             text-align: center;
             text-transform: uppercase;
-            box-sizing: border-box; /* Para que el padding no rompa el ancho */
-            transition: border-color 0.3s;
+            box-sizing: border-box;
+            margin-bottom: 5px;
         }
-        input[type="text"]:focus {
-            border-color: #4dabf7; /* Azul brillante al escribir */
-            outline: none;
-            background-color: #383838;
-        }
-        ::placeholder { color: #666; }
+        input[type="text"]:focus { border-color: #4dabf7; outline: none; background-color: #383838; }
 
-        /* --- TARJETA DE RESULTADOS --- */
+        /* --- ESTADO Y ERROR --- */
+        .status-bar { margin: 10px 0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
+        .status-loading { color: #aaa; }
+        .status-success { color: #81c784; }
+        .status-error { color: #e57373; }
+        .error-msg { color: #ff5252; display: none; margin-top: 10px; font-weight: bold; }
+
+        /* --- TARJETA DE RESULTADO --- */
         .result-card {
             display: none;
-            margin-top: 25px;
+            margin-top: 20px;
             padding: 20px;
             border: 2px solid #4dabf7;
             border-radius: 12px;
-            background-color: #232b35; /* Un tono azulado muy oscuro */
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background-color: #232b35;
         }
-        .result-card.show { display: block; animation: slideUp 0.3s ease-out; }
+        .result-card.show { display: block; animation: slideUp 0.3s; }
 
-        .label {
-            font-size: 0.85rem;
-            color: #bbb;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
+        .lote-header { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px; }
+        .pos-badge { font-size: 3rem; font-weight: 800; color: #4dabf7; display: block; line-height: 1; margin: 10px 0; }
+        .label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
 
-        .lote-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 15px;
-            word-wrap: break-word; /* Evita que nombres largos rompan el diseño */
-        }
-
-        .big-number {
-            font-size: 3.5rem;
-            font-weight: 800;
-            color: #4dabf7; /* Azul neón */
-            display: block;
-            margin: 5px 0 15px 0;
-            line-height: 1;
-        }
-
-        .details {
-            color: #aaa;
-            font-size: 0.95rem;
-            padding-top: 10px;
+        /* --- VECINOS (ANTERIOR / SIGUIENTE) --- */
+        .neighbors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
             border-top: 1px solid #444;
+            padding-top: 15px;
         }
-        
-        .original-id {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        .error-msg {
-            color: #ff5252;
-            font-weight: bold;
-            display: none;
-            margin-top: 15px;
-            background: rgba(255, 82, 82, 0.1);
+        .neighbor-box {
+            background: #2c2c2c;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 8px;
+            font-size: 0.85rem;
         }
+        .neighbor-title { color: #aaa; font-size: 0.75rem; margin-bottom: 5px; }
+        .neighbor-val { color: #fff; font-weight: bold; word-break: break-all; }
+        .neighbor-none { color: #555; font-style: italic; }
 
-        /* --- ANIMACIÓN --- */
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- MODAL DE RESUMEN --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 100;
+            display: none; justify-content: center; align-items: flex-start;
+            padding-top: 40px; overflow-y: auto;
         }
+        .modal-content {
+            background: #1e1e1e; width: 90%; max-width: 600px;
+            padding: 20px; border-radius: 10px; border: 1px solid #444;
+            margin-bottom: 40px;
+        }
+        .modal-close { float: right; font-size: 1.5rem; cursor: pointer; color: #fff; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
+        th { text-align: left; color: #4dabf7; border-bottom: 1px solid #444; padding: 8px; }
+        td { padding: 8px; border-bottom: 1px solid #333; color: #ccc; }
+        tr:last-child td { border-bottom: none; }
+        .cell-id { font-family: monospace; color: #fff; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -143,85 +133,152 @@
 <div class="container">
     <h1>📍 Localizador</h1>
     
+    <button class="btn-summary" onclick="toggleSummary()">📋 Ver Resumen de Lotes</button>
+    
     <div id="status" class="status-bar status-loading">Cargando datos...</div>
 
     <input type="text" id="searchInput" placeholder="Escribe ID (ej. 26964)" disabled autocomplete="off">
     <div id="errorMsg" class="error-msg">❌ ID NO ENCONTRADO</div>
 
     <div id="result" class="result-card">
-        <div class="label">Pertenece al Lote:</div>
-        <div class="lote-name" id="resLote">--</div>
+        <div class="label">Lote:</div>
+        <div class="lote-header" id="resLote">--</div>
         
-        <div class="label">Posición en Carpeta:</div>
-        <span class="big-number" id="resPos">--</span>
+        <div class="label">Posición:</div>
+        <span class="pos-badge" id="resPos">--</span>
         
-        <div class="details" id="resDetails"></div>
-        <div class="original-id" id="resOriginalId"></div>
+        <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
+        <div style="font-size: 0.8rem; color: #888;" id="resDetails"></div>
+
+        <div class="neighbors-grid">
+            <div class="neighbor-box">
+                <div class="neighbor-title">⬅️ ANTERIOR</div>
+                <div class="neighbor-val" id="resPrev">--</div>
+            </div>
+            <div class="neighbor-box">
+                <div class="neighbor-title">SIGUIENTE ➡️</div>
+                <div class="neighbor-val" id="resNext">--</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="summaryModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="toggleSummary()">&times;</span>
+        <h2 style="color: #fff; margin-top:0;">Resumen por Lote</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lote</th>
+                    <th>Inicio</th>
+                    <th>Fin</th>
+                    <th>Cant.</th>
+                </tr>
+            </thead>
+            <tbody id="summaryTableBody"></tbody>
+        </table>
     </div>
 </div>
 
 <script>
     const DATA_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
     
-    let dbIndex = {}; 
+    let dbIndex = {};       // Búsqueda rápida
+    let lotesGlobal = {};   // Datos ordenados por lote
+    
     const statusEl = document.getElementById('status');
     const inputEl = document.getElementById('searchInput');
     const resultEl = document.getElementById('result');
     const errorEl = document.getElementById('errorMsg');
+    const summaryModal = document.getElementById('summaryModal');
 
     // Cargar datos
     fetch(DATA_URL)
-        .then(res => {
-            if (!res.ok) throw new Error("Error red");
-            return res.json();
-        })
+        .then(res => res.ok ? res.json() : Promise.reject("Error red"))
         .then(data => {
             procesarDatos(data);
-            statusEl.textContent = `✅ Base de datos lista (${data.length} registros)`;
+            generarResumen();
+            statusEl.textContent = `✅ Base lista: ${data.length} registros`;
             statusEl.className = 'status-bar status-success';
             inputEl.disabled = false;
             inputEl.focus();
         })
         .catch(err => {
-            console.error(err);
-            statusEl.innerHTML = `⚠️ Error de carga. <a href="#" onclick="location.reload()" style="color:#fff">Reintentar</a>`;
+            statusEl.innerHTML = `⚠️ Error. <a href="#" onclick="location.reload()" style="color:#fff">Reintentar</a>`;
             statusEl.className = 'status-bar status-error';
         });
 
     function procesarDatos(jsonArray) {
-        const lotesTemp = {};
-        
+        // 1. Agrupar ordenadamente
         jsonArray.forEach(item => {
             const lote = item.Lote || "SIN_LOTE";
-            if (!lotesTemp[lote]) lotesTemp[lote] = [];
-            lotesTemp[lote].push(item);
+            if (!lotesGlobal[lote]) lotesGlobal[lote] = [];
+            lotesGlobal[lote].push(item);
         });
 
-        for (const lote in lotesTemp) {
-            const items = lotesTemp[lote];
+        // 2. Crear índice de búsqueda
+        for (const lote in lotesGlobal) {
+            const items = lotesGlobal[lote];
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
                 if (idFull) {
                     const info = {
                         lote: lote,
-                        posicion: index + 1,
+                        posicion: index + 1, // 1-based
+                        indexArray: index,   // 0-based para buscar vecinos
                         extra: item.Etiqueta || "",
                         idReal: idFull
                     };
 
-                    // Guardar ID completo
+                    // Indexar ID completo y numérico
                     dbIndex[idFull] = info;
-
-                    // Guardar ID numérico si tiene prefijo MC
                     if (idFull.startsWith("MC")) {
-                        const idNum = idFull.replace("MC", "");
-                        if (!dbIndex[idNum]) dbIndex[idNum] = info;
+                        dbIndex[idFull.replace("MC", "")] = info;
                     }
                 }
             });
         }
     }
 
+    function generarResumen() {
+        const tbody = document.getElementById('summaryTableBody');
+        let html = '';
+        
+        // Ordenar nombres de lotes
+        const nombresLotes = Object.keys(lotesGlobal).sort();
+        
+        nombresLotes.forEach(nombre => {
+            const items = lotesGlobal[nombre];
+            if(items.length > 0) {
+                const primero = items[0].id_bct || "N/A";
+                const ultimo = items[items.length - 1].id_bct || "N/A";
+                
+                html += `<tr>
+                    <td><b>${nombre}</b></td>
+                    <td class="cell-id">${primero}</td>
+                    <td class="cell-id">${ultimo}</td>
+                    <td>${items.length}</td>
+                </tr>`;
+            }
+        });
+        tbody.innerHTML = html;
+    }
+
+    function toggleSummary() {
+        if(summaryModal.style.display === 'flex') {
+            summaryModal.style.display = 'none';
+        } else {
+            summaryModal.style.display = 'flex';
+        }
+    }
+
+    // Cerrar modal al hacer click fuera
+    window.onclick = function(event) {
+        if (event.target == summaryModal) summaryModal.style.display = "none";
+    }
+
+    // Búsqueda
     inputEl.addEventListener('input', (e) => {
         let query = e.target.value.trim().toUpperCase();
         
@@ -234,10 +291,35 @@
         const match = dbIndex[query];
 
         if (match) {
+            // Datos básicos
             document.getElementById('resLote').textContent = match.lote;
             document.getElementById('resPos').textContent = "#" + match.posicion;
             document.getElementById('resDetails').textContent = match.extra;
             document.getElementById('resOriginalId').textContent = match.idReal;
+
+            // Calcular vecinos
+            const listaLote = lotesGlobal[match.lote];
+            const idx = match.indexArray;
+            
+            // Anterior
+            if (idx > 0) {
+                const prevItem = listaLote[idx - 1];
+                document.getElementById('resPrev').textContent = prevItem.id_bct;
+                document.getElementById('resPrev').className = 'neighbor-val';
+            } else {
+                document.getElementById('resPrev').textContent = "(Es el primero)";
+                document.getElementById('resPrev').className = 'neighbor-val neighbor-none';
+            }
+
+            // Siguiente
+            if (idx < listaLote.length - 1) {
+                const nextItem = listaLote[idx + 1];
+                document.getElementById('resNext').textContent = nextItem.id_bct;
+                document.getElementById('resNext').className = 'neighbor-val';
+            } else {
+                document.getElementById('resNext').textContent = "(Es el último)";
+                document.getElementById('resNext').className = 'neighbor-val neighbor-none';
+            }
             
             resultEl.classList.add('show');
             errorEl.style.display = 'none';
@@ -248,7 +330,6 @@
         }
     });
 
-    // Evitar que el scanner envíe submits
     inputEl.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') e.preventDefault();
     });
