@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Buscador de posiciones protocolos</title>
     <style>
-        /* --- ESTILOS GENERALES (Dark Mode) --- */
+        /* --- ESTILOS GENERALES (Tema Azul Futurista) --- */
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #0a192f;
+            color: #e6f1ff;
             margin: 0;
             padding: 20px 10px;
             display: flex;
@@ -20,14 +20,14 @@
 
         /* --- CONTENEDOR PRINCIPAL --- */
         .container {
-            background-color: #1e1e1e;
+            background-color: #112240;
             padding: 25px;
             border-radius: 15px;
             box-shadow: 0 8px 16px rgba(0,0,0,0.5);
             width: 100%;
             max-width: 500px;
             text-align: center;
-            border: 1px solid #333;
+            border: 1px solid #233554;
             box-sizing: border-box;
             position: relative;
         }
@@ -36,9 +36,9 @@
 
         /* --- BOTÓN DE RESUMEN --- */
         .btn-summary {
-            background: #2c3e50;
-            color: #aecbfa;
-            border: 1px solid #444;
+            background: #1d2d50;
+            color: #00e5ff;
+            border: 1px solid #233554;
             padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
@@ -46,29 +46,29 @@
             margin-bottom: 15px;
             transition: background 0.2s;
         }
-        .btn-summary:hover { background: #34495e; }
+        .btn-summary:hover { background: #233554; }
 
         /* --- INPUT --- */
         input[type="text"] {
             width: 100%;
             padding: 15px;
             font-size: 1.2rem;
-            background-color: #2c2c2c;
-            color: #fff;
-            border: 2px solid #444;
+            background-color: #1d2d50;
+            color: #00e5ff;
+            border: 2px solid #233554;
             border-radius: 8px;
             text-align: center;
             text-transform: uppercase;
             box-sizing: border-box;
             margin-bottom: 5px;
         }
-        input[type="text"]:focus { border-color: #4dabf7; outline: none; background-color: #383838; }
+        input[type="text"]:focus { border-color: #00e5ff; outline: none; background-color: #233554; }
 
         /* --- ESTADO Y ERROR --- */
         .status-bar { margin: 10px 0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
-        .status-loading { color: #aaa; }
-        .status-success { color: #81c784; }
-        .status-error { color: #e57373; }
+        .status-loading { color: #8892b0; }
+        .status-success { color: #00e5ff; }
+        .status-error { color: #ff5252; }
         .error-msg { color: #ff5252; display: none; margin-top: 10px; font-weight: bold; }
 
         /* --- TARJETA DE RESULTADO --- */
@@ -76,54 +76,102 @@
             display: none;
             margin-top: 20px;
             padding: 20px;
-            border: 2px solid #4dabf7;
+            border: 2px solid #00e5ff;
             border-radius: 12px;
-            background-color: #232b35;
+            background-color: #112240;
         }
         .result-card.show { display: block; animation: slideUp 0.3s; }
 
-        .lote-header { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 10px; }
-        .pos-badge { font-size: 3rem; font-weight: 800; color: #4dabf7; display: block; line-height: 1; margin: 10px 0; }
-        .label { font-size: 0.8rem; color: #888; text-transform: uppercase; }
+        .lote-header { 
+            font-size: 1.6rem; 
+            font-weight: bold; 
+            color: #fff; 
+            margin-bottom: 10px; 
+            line-height: 1.2;
+        }
+        
+        .pos-badge { font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; line-height: 1; margin: 10px 0; }
+        .label { font-size: 0.8rem; color: #8892b0; text-transform: uppercase; }
 
-        /* --- VECINOS (ANTERIOR / SIGUIENTE) --- */
+        /* --- VECINOS --- */
         .neighbors-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 20px;
-            border-top: 1px solid #444;
+            border-top: 1px solid #233554;
             padding-top: 15px;
         }
         .neighbor-box {
-            background: #2c2c2c;
+            background: #1d2d50;
             padding: 10px;
             border-radius: 8px;
             font-size: 0.85rem;
         }
-        .neighbor-title { color: #aaa; font-size: 0.75rem; margin-bottom: 5px; }
-        .neighbor-val { color: #fff; font-weight: bold; word-break: break-all; }
-        .neighbor-none { color: #555; font-style: italic; }
+        .neighbor-title { color: #8892b0; font-size: 0.75rem; margin-bottom: 5px; }
+        
+        .neighbor-val { 
+            color: #fff; 
+            font-weight: bold; 
+            word-break: break-all; 
+            font-size: 1.2rem;
+        }
+        
+        .neighbor-none { color: #555; font-style: italic; font-size: 0.9rem; }
 
         /* --- MODAL DE RESUMEN --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 100;
+            background: rgba(10, 25, 47, 0.9); z-index: 100;
             display: none; justify-content: center; align-items: flex-start;
             padding-top: 40px; overflow-y: auto;
         }
         .modal-content {
-            background: #1e1e1e; width: 90%; max-width: 600px;
-            padding: 20px; border-radius: 10px; border: 1px solid #444;
+            background: #112240; width: 90%; max-width: 650px;
+            padding: 20px; border-radius: 10px; border: 1px solid #233554;
             margin-bottom: 40px;
         }
         .modal-close { float: right; font-size: 1.5rem; cursor: pointer; color: #fff; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        th { text-align: left; color: #4dabf7; border-bottom: 1px solid #444; padding: 8px; }
-        td { padding: 8px; border-bottom: 1px solid #333; color: #ccc; }
+        th { text-align: left; color: #00e5ff; border-bottom: 1px solid #233554; padding: 8px; }
+        td { padding: 8px; border-bottom: 1px solid #1d2d50; color: #ccd6f6; }
         tr:last-child td { border-bottom: none; }
         .cell-id { font-family: monospace; color: #fff; }
+
+        /* ESTILOS PARA LA LISTA COMPLETA (Grid) */
+        .list-container { display: none; padding-top: 10px; }
+        .list-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .grid-item {
+            background: #1d2d50; 
+            border: 1px solid #233554; 
+            border-radius: 6px;
+            padding: 10px 5px; 
+            text-align: center; 
+            font-size: 1.1rem; 
+            font-weight: bold; 
+            color: #fff;
+        }
+        
+        /* AQUÍ ESTÁ EL CAMBIO DE TAMAÑO DEL ÍNDICE (#1, #2...) */
+        .grid-index { 
+            font-size: 1rem;      /* AUMENTADO (Antes 0.7rem) */
+            color: #00e5ff; 
+            font-weight: bold;    /* AHORA EN NEGRITA */
+            display: block; 
+            margin-bottom: 4px; 
+        }
+
+        .btn-mini { background: none; border: 1px solid #233554; color: #8892b0; border-radius: 4px; cursor: pointer; font-size: 0.75rem; padding: 2px 6px; }
+        .btn-mini:hover { border-color: #00e5ff; color: #00e5ff; }
+        .btn-back { width: 100%; padding: 10px; background: #1d2d50; color: white; border: none; margin-bottom: 15px; border-radius: 5px; cursor: pointer; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -148,7 +196,7 @@
         <span class="pos-badge" id="resPos">--</span>
         
         <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
-        <div style="font-size: 0.8rem; color: #888;" id="resDetails"></div>
+        <div style="font-size: 0.8rem; color: #8892b0;" id="resDetails"></div>
 
         <div class="neighbors-grid">
             <div class="neighbor-box">
@@ -165,33 +213,45 @@
 
 <div id="summaryModal" class="modal-overlay">
     <div class="modal-content">
-        <span class="modal-close" onclick="toggleSummary()">&times;</span>
-        <h2 style="color: #fff; margin-top:0;">Resumen por Lote</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Lote</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
-                    <th>Cant.</th>
-                </tr>
-            </thead>
-            <tbody id="summaryTableBody"></tbody>
-        </table>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <h2 style="color: #fff; margin-top:0;" id="modalTitle">Resumen por Lote</h2>
+        
+        <div id="viewTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Cant.</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="viewList" class="list-container">
+            <button class="btn-back" onclick="backToTable()">⬅️ Regresar a la Tabla</button>
+            <div id="listGrid" class="list-grid"></div>
+        </div>
     </div>
 </div>
 
 <script>
     const DATA_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
     
-    let dbIndex = {};       // Búsqueda rápida
-    let lotesGlobal = {};   // Datos ordenados por lote
+    let dbIndex = {};       
+    let lotesGlobal = {};   
     
     const statusEl = document.getElementById('status');
     const inputEl = document.getElementById('searchInput');
     const resultEl = document.getElementById('result');
     const errorEl = document.getElementById('errorMsg');
     const summaryModal = document.getElementById('summaryModal');
+    const viewTable = document.getElementById('viewTable');
+    const viewList = document.getElementById('viewList');
+    const modalTitle = document.getElementById('modalTitle');
 
     // Cargar datos
     fetch(DATA_URL)
@@ -210,28 +270,35 @@
         });
 
     function procesarDatos(jsonArray) {
-        // 1. Agrupar ordenadamente
+        lotesGlobal = {};
+        // 1. Agrupar
         jsonArray.forEach(item => {
             const lote = item.Lote || "SIN_LOTE";
             if (!lotesGlobal[lote]) lotesGlobal[lote] = [];
             lotesGlobal[lote].push(item);
         });
 
-        // 2. Crear índice de búsqueda
+        // 2. ORDENAR y Crear índice
         for (const lote in lotesGlobal) {
+            // Lógica de ordenamiento (Menor a Mayor)
+            lotesGlobal[lote].sort((a, b) => {
+                const idA = a.id_bct ? a.id_bct.trim() : "";
+                const idB = b.id_bct ? b.id_bct.trim() : "";
+                return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
+            });
+
             const items = lotesGlobal[lote];
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
                 if (idFull) {
                     const info = {
                         lote: lote,
-                        posicion: index + 1, // 1-based
-                        indexArray: index,   // 0-based para buscar vecinos
+                        posicion: index + 1,
+                        indexArray: index,
                         extra: item.Etiqueta || "",
                         idReal: idFull
                     };
 
-                    // Indexar ID completo y numérico
                     dbIndex[idFull] = info;
                     if (idFull.startsWith("MC")) {
                         dbIndex[idFull.replace("MC", "")] = info;
@@ -244,8 +311,6 @@
     function generarResumen() {
         const tbody = document.getElementById('summaryTableBody');
         let html = '';
-        
-        // Ordenar nombres de lotes
         const nombresLotes = Object.keys(lotesGlobal).sort();
         
         nombresLotes.forEach(nombre => {
@@ -259,23 +324,44 @@
                     <td class="cell-id">${primero}</td>
                     <td class="cell-id">${ultimo}</td>
                     <td>${items.length}</td>
+                    <td><button class="btn-mini" onclick="verListaCompleta('${nombre}')">Ver</button></td>
                 </tr>`;
             }
         });
         tbody.innerHTML = html;
     }
 
-    function toggleSummary() {
-        if(summaryModal.style.display === 'flex') {
-            summaryModal.style.display = 'none';
-        } else {
-            summaryModal.style.display = 'flex';
-        }
+    // Funciones para ver lista completa
+    function verListaCompleta(nombreLote) {
+        viewTable.style.display = 'none';
+        viewList.style.display = 'block';
+        modalTitle.textContent = "📂 " + nombreLote;
+        
+        const grid = document.getElementById('listGrid');
+        const items = lotesGlobal[nombreLote];
+        let html = '';
+        items.forEach((item, idx) => {
+            html += `<div class="grid-item"><span class="grid-index">#${idx+1}</span>${item.id_bct}</div>`;
+        });
+        grid.innerHTML = html;
     }
 
-    // Cerrar modal al hacer click fuera
+    function backToTable() {
+        viewTable.style.display = 'block';
+        viewList.style.display = 'none';
+        modalTitle.textContent = "Resumen por Lote";
+    }
+
+    function toggleSummary() {
+        summaryModal.style.display = 'flex';
+        backToTable(); // Reiniciar vista
+    }
+    function closeModal() {
+        summaryModal.style.display = 'none';
+    }
+
     window.onclick = function(event) {
-        if (event.target == summaryModal) summaryModal.style.display = "none";
+        if (event.target == summaryModal) closeModal();
     }
 
     // Búsqueda
@@ -291,30 +377,24 @@
         const match = dbIndex[query];
 
         if (match) {
-            // Datos básicos
             document.getElementById('resLote').textContent = match.lote;
             document.getElementById('resPos').textContent = "#" + match.posicion;
             document.getElementById('resDetails').textContent = match.extra;
             document.getElementById('resOriginalId').textContent = match.idReal;
 
-            // Calcular vecinos
             const listaLote = lotesGlobal[match.lote];
             const idx = match.indexArray;
             
-            // Anterior
             if (idx > 0) {
-                const prevItem = listaLote[idx - 1];
-                document.getElementById('resPrev').textContent = prevItem.id_bct;
+                document.getElementById('resPrev').textContent = listaLote[idx - 1].id_bct;
                 document.getElementById('resPrev').className = 'neighbor-val';
             } else {
                 document.getElementById('resPrev').textContent = "(Es el primero)";
                 document.getElementById('resPrev').className = 'neighbor-val neighbor-none';
             }
 
-            // Siguiente
             if (idx < listaLote.length - 1) {
-                const nextItem = listaLote[idx + 1];
-                document.getElementById('resNext').textContent = nextItem.id_bct;
+                document.getElementById('resNext').textContent = listaLote[idx + 1].id_bct;
                 document.getElementById('resNext').className = 'neighbor-val';
             } else {
                 document.getElementById('resNext').textContent = "(Es el último)";
@@ -337,4 +417,3 @@
 
 </body>
 </html>
-
