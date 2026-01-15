@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Buscador de posiciones protocolos</title>
+    <title>Buscador de posiciones (Orden Original)</title>
     <style>
         /* --- ESTILOS GENERALES (Tema Azul Futurista) --- */
         body {
@@ -160,11 +160,10 @@
             color: #fff;
         }
         
-        /* AQUÍ ESTÁ EL CAMBIO DE TAMAÑO DEL ÍNDICE (#1, #2...) */
         .grid-index { 
-            font-size: 1rem;      /* AUMENTADO (Antes 0.7rem) */
+            font-size: 1rem;
             color: #00e5ff; 
-            font-weight: bold;    /* AHORA EN NEGRITA */
+            font-weight: bold;
             display: block; 
             margin-bottom: 4px; 
         }
@@ -179,7 +178,7 @@
 <body>
 
 <div class="container">
-    <h1>📍 Localizador</h1>
+    <h1>📍 Localizador (Original)</h1>
     
     <button class="btn-summary" onclick="toggleSummary()">📋 Ver Resumen de Lotes</button>
     
@@ -192,7 +191,7 @@
         <div class="label">Lote:</div>
         <div class="lote-header" id="resLote">--</div>
         
-        <div class="label">Posición:</div>
+        <div class="label">Posición en el Archivo:</div>
         <span class="pos-badge" id="resPos">--</span>
         
         <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
@@ -200,11 +199,11 @@
 
         <div class="neighbors-grid">
             <div class="neighbor-box">
-                <div class="neighbor-title">⬅️ ANTERIOR</div>
+                <div class="neighbor-title">⬅️ ANTERIOR (En lista)</div>
                 <div class="neighbor-val" id="resPrev">--</div>
             </div>
             <div class="neighbor-box">
-                <div class="neighbor-title">SIGUIENTE ➡️</div>
+                <div class="neighbor-title">SIGUIENTE (En lista) ➡️</div>
                 <div class="neighbor-val" id="resNext">--</div>
             </div>
         </div>
@@ -259,7 +258,7 @@
         .then(data => {
             procesarDatos(data);
             generarResumen();
-            statusEl.textContent = `✅ Base lista: ${data.length} registros`;
+            statusEl.textContent = `✅ Base lista: ${data.length} registros cargados`;
             statusEl.className = 'status-bar status-success';
             inputEl.disabled = false;
             inputEl.focus();
@@ -271,29 +270,26 @@
 
     function procesarDatos(jsonArray) {
         lotesGlobal = {};
-        // 1. Agrupar
+        
+        // 1. Agrupar manteniendo el orden de llegada (NO ORDENAR)
         jsonArray.forEach(item => {
             const lote = item.Lote || "SIN_LOTE";
             if (!lotesGlobal[lote]) lotesGlobal[lote] = [];
             lotesGlobal[lote].push(item);
         });
 
-        // 2. ORDENAR y Crear índice
+        // 2. Indexar tal cual viene en el archivo
         for (const lote in lotesGlobal) {
-            // Lógica de ordenamiento (Menor a Mayor)
-            lotesGlobal[lote].sort((a, b) => {
-                const idA = a.id_bct ? a.id_bct.trim() : "";
-                const idB = b.id_bct ? b.id_bct.trim() : "";
-                return idA.localeCompare(idB, undefined, { numeric: true, sensitivity: 'base' });
-            });
-
+            // AQUÍ ELIMINAMOS EL .sort()
+            // Se respeta el orden natural del JSON/Excel
+            
             const items = lotesGlobal[lote];
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
                 if (idFull) {
                     const info = {
                         lote: lote,
-                        posicion: index + 1,
+                        posicion: index + 1, // Posición 1 = Primer renglón del lote
                         indexArray: index,
                         extra: item.Etiqueta || "",
                         idReal: idFull
