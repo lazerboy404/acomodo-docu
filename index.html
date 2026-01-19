@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Buscador de posiciones (Orden Original)</title>
+    <title>Protocolos</title>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+
     <style>
-        /* --- ESTILOS GENERALES (Tema Azul Futurista) --- */
+        /* --- ESTILOS GENERALES (Cyber Blue) --- */
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: #0a192f;
@@ -32,24 +36,27 @@
             position: relative;
         }
 
-        h1 { margin: 0 0 15px 0; font-size: 1.5rem; color: #fff; }
+        h1 { margin: 0 0 15px 0; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px rgba(0,210,255,0.3); }
 
         /* --- BOTÓN DE RESUMEN --- */
         .btn-summary {
             background: #1d2d50;
             color: #00e5ff;
             border: 1px solid #233554;
-            padding: 8px 15px;
+            padding: 12px 15px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            transition: background 0.2s;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            font-weight: bold;
+            width: 100%;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
         }
-        .btn-summary:hover { background: #233554; }
+        .btn-summary:hover { background: #233554; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
 
         /* --- INPUT --- */
-        input[type="text"] {
+        input[type="text"], textarea {
             width: 100%;
             padding: 15px;
             font-size: 1.2rem;
@@ -61,14 +68,23 @@
             text-transform: uppercase;
             box-sizing: border-box;
             margin-bottom: 5px;
+            font-family: 'Segoe UI', sans-serif;
         }
-        input[type="text"]:focus { border-color: #00e5ff; outline: none; background-color: #233554; }
+        input[type="text"]:focus, textarea:focus { border-color: #00e5ff; outline: none; background-color: #172a45; }
+        
+        textarea {
+            font-size: 0.9rem;
+            text-align: left;
+            min-height: 80px;
+            resize: vertical;
+            color: #fff;
+            margin-top: 5px;
+        }
 
         /* --- ESTADO Y ERROR --- */
         .status-bar { margin: 10px 0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
         .status-loading { color: #8892b0; }
         .status-success { color: #00e5ff; }
-        .status-error { color: #ff5252; }
         .error-msg { color: #ff5252; display: none; margin-top: 10px; font-weight: bold; }
 
         /* --- TARJETA DE RESULTADO --- */
@@ -79,18 +95,12 @@
             border: 2px solid #00e5ff;
             border-radius: 12px;
             background-color: #112240;
+            box-shadow: 0 0 20px rgba(0,229,255,0.1);
         }
         .result-card.show { display: block; animation: slideUp 0.3s; }
 
-        .lote-header { 
-            font-size: 1.6rem; 
-            font-weight: bold; 
-            color: #fff; 
-            margin-bottom: 10px; 
-            line-height: 1.2;
-        }
-        
-        .pos-badge { font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; line-height: 1; margin: 10px 0; }
+        .lote-header { font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 10px; line-height: 1.2; }
+        .pos-badge { font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; line-height: 1; margin: 10px 0; text-shadow: 0 0 15px rgba(0,229,255,0.4); }
         .label { font-size: 0.8rem; color: #8892b0; text-transform: uppercase; }
 
         /* --- VECINOS --- */
@@ -99,78 +109,147 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-top: 20px;
+            margin-bottom: 20px;
             border-top: 1px solid #233554;
             padding-top: 15px;
         }
-        .neighbor-box {
-            background: #1d2d50;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.85rem;
-        }
+        .neighbor-box { background: #1d2d50; padding: 10px; border-radius: 8px; font-size: 0.85rem; }
         .neighbor-title { color: #8892b0; font-size: 0.75rem; margin-bottom: 5px; }
-        
-        .neighbor-val { 
-            color: #fff; 
-            font-weight: bold; 
-            word-break: break-all; 
-            font-size: 1.2rem;
+        .neighbor-val { color: #fff; font-weight: bold; word-break: break-all; font-size: 1.2rem; }
+
+        /* --- OBSERVACIONES & BOTONES --- */
+        .obs-container {
+            border-top: 1px solid #233554;
+            padding-top: 15px;
+            text-align: left;
         }
         
-        .neighbor-none { color: #555; font-style: italic; font-size: 0.9rem; }
+        .buttons-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-save {
+            background: #00e5ff; color: #0a192f; border: none; padding: 10px;
+            border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer;
+        }
+        .btn-save:hover { opacity: 0.9; }
+
+        .btn-delete {
+            background: #1d2d50; color: #ff5252; border: 1px solid #ff5252; padding: 10px;
+            border-radius: 5px; width: 60%; 
+            font-weight: bold; cursor: pointer; font-size: 0.8rem;
+        }
+        .btn-delete:hover { background: #ff5252; color: #fff; }
+
+        .save-indicator { font-size: 0.75rem; color: #00ff88; margin-top: 5px; text-align: center; height: 1em; }
 
         /* --- MODAL DE RESUMEN --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 25, 47, 0.9); z-index: 100;
+            background: rgba(10, 25, 47, 0.95); z-index: 100;
+            backdrop-filter: blur(5px);
             display: none; justify-content: center; align-items: flex-start;
-            padding-top: 40px; overflow-y: auto;
+            padding-top: 40px; 
         }
         .modal-content {
-            background: #112240; width: 90%; max-width: 650px;
+            background: #112240; width: 90%; max-width: 800px;
             padding: 20px; border-radius: 10px; border: 1px solid #233554;
             margin-bottom: 40px;
+            display: flex; flex-direction: column;
+            max-height: 85vh;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .modal-close { float: right; font-size: 1.5rem; cursor: pointer; color: #fff; }
+        .modal-close { font-size: 1.5rem; cursor: pointer; color: #fff; margin-left: 15px;}
         
+        .btn-excel {
+            background: #107c41; color: white; border: none; padding: 6px 12px;
+            border-radius: 5px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold;
+        }
+        .btn-excel:hover { background: #0c5e31; }
+
+        /* --- TABLA DE LOTES --- */
+        #viewTable { overflow-y: auto; flex-grow: 1; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-        th { text-align: left; color: #00e5ff; border-bottom: 1px solid #233554; padding: 8px; }
-        td { padding: 8px; border-bottom: 1px solid #1d2d50; color: #ccd6f6; }
-        tr:last-child td { border-bottom: none; }
+        th { text-align: left; color: #00e5ff; border-bottom: 2px solid #233554; padding: 10px 8px; position: sticky; top: 0; background: #112240; z-index: 2; }
+        td { padding: 10px 8px; border-bottom: 1px solid #1d2d50; color: #ccd6f6; vertical-align: middle; }
         .cell-id { font-family: monospace; color: #fff; }
+        
+        /* SWITCH TERMINADO */
+        .switch-container { display: flex; align-items: center; gap: 8px; }
+        .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #1d2d50; border: 1px solid #233554; transition: .4s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px;
+            background-color: #8892b0; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(0, 255, 136, 0.2); border-color: #00ff88; }
+        input:checked + .slider:before { transform: translateX(18px); background-color: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        
+        .switch-label { font-size: 0.7rem; font-weight: bold; color: #00ff88; display: none; text-shadow: 0 0 5px rgba(0, 255, 136, 0.4); }
+        
+        /* EFECTO NEÓN EN FILA TERMINADA */
+        .row-finished td { color: #00ff88 !important; text-shadow: 0 0 2px rgba(0, 255, 136, 0.3); transition: 0.3s; }
+        .row-finished .cell-id { color: #00ff88 !important; }
+        .row-finished .switch-label { display: inline-block; }
 
-        /* ESTILOS PARA LA LISTA COMPLETA (Grid) */
-        .list-container { display: none; padding-top: 10px; }
-        .list-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 8px;
-            max-height: 60vh;
-            overflow-y: auto;
+        /* BOTON DE OBSERVACIONES */
+        .obs-badge {
+            display: inline-block; background: #233554; color: #8892b0; 
+            padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;
+            min-width: 20px; text-align: center;
         }
         
-        .grid-item {
-            background: #1d2d50; 
-            border: 1px solid #233554; 
-            border-radius: 6px;
-            padding: 10px 5px; 
-            text-align: center; 
-            font-size: 1.1rem; 
-            font-weight: bold; 
-            color: #fff;
+        .btn-obs-active { 
+            background: #ff5252; color: white; border: none; 
+            padding: 4px 10px; border-radius: 15px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 5px rgba(255, 82, 82, 0.5); font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .btn-obs-active:hover { transform: scale(1.1); background: #ff1744; }
+
+        /* --- LISTA Y TARJETAS --- */
+        #viewList { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; overflow-y: auto; padding: 5px; flex-grow: 1; }
+        
+        .grid-item { background: #1d2d50; border: 1px solid #233554; border-radius: 6px; padding: 10px 5px; text-align: center; font-size: 1.1rem; font-weight: bold; color: #fff; }
+        .grid-index { font-size: 1rem; color: #00e5ff; font-weight: bold; display: block; margin-bottom: 4px; }
+        
+        /* --- TARJETA DE ALERTA ROJA (OBSERVACIONES) --- */
+        .obs-card {
+            background: rgba(255, 82, 82, 0.08); /* Fondo rojo muy suave */
+            border: 1px solid #ff5252;
+            border-left: 5px solid #ff5252; /* Borde izquierdo grueso */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px; /* Espacio entre tarjetas para que no se amontonen */
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
-        .grid-index { 
-            font-size: 1rem;
-            color: #00e5ff; 
-            font-weight: bold;
-            display: block; 
-            margin-bottom: 4px; 
+        .obs-card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255, 82, 82, 0.3);
+            padding-bottom: 8px; margin-bottom: 8px;
+        }
+        
+        .obs-id-title { color: #ff5252; font-weight: bold; font-size: 1.3rem; letter-spacing: 1px; }
+        .obs-pos { color: #ff8a80; font-size: 0.9rem; font-weight: bold;}
+        .obs-text { 
+            color: #ffebee; 
+            font-size: 1rem; 
+            line-height: 1.5; /* Espacio entre líneas de texto */
+            white-space: pre-wrap; 
         }
 
-        .btn-mini { background: none; border: 1px solid #233554; color: #8892b0; border-radius: 4px; cursor: pointer; font-size: 0.75rem; padding: 2px 6px; }
+        .btn-mini { background: none; border: 1px solid #233554; color: #8892b0; border-radius: 4px; cursor: pointer; font-size: 0.75rem; padding: 4px 8px; }
         .btn-mini:hover { border-color: #00e5ff; color: #00e5ff; }
-        .btn-back { width: 100%; padding: 10px; background: #1d2d50; color: white; border: none; margin-bottom: 15px; border-radius: 5px; cursor: pointer; }
+        .btn-back { width: 100%; padding: 12px; background: #1d2d50; color: white; border: none; margin-bottom: 10px; border-radius: 5px; cursor: pointer; flex-shrink: 0; font-weight: bold; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -178,33 +257,46 @@
 <body>
 
 <div class="container">
-    <h1>📍 Localizador (Original)</h1>
+    <h1>📍 Localizador</h1>
     
-    <button class="btn-summary" onclick="toggleSummary()">📋 Ver Resumen de Lotes</button>
+    <button class="btn-summary" onclick="toggleSummary()">📋 Resumen / Reporte / Observaciones</button>
     
-    <div id="status" class="status-bar status-loading">Cargando datos...</div>
+    <div id="loading" class="status-bar status-loading">📡 Conectando a Base de Datos...</div>
+    
+    <div id="appInterface" style="display:none; width: 100%;">
+        <input type="text" id="searchInput" placeholder="ID (ej. 26964)" autocomplete="off">
+        <div id="errorMsg" class="error-msg">❌ ID NO ENCONTRADO</div>
 
-    <input type="text" id="searchInput" placeholder="Escribe ID (ej. 26964)" disabled autocomplete="off">
-    <div id="errorMsg" class="error-msg">❌ ID NO ENCONTRADO</div>
-
-    <div id="result" class="result-card">
-        <div class="label">Lote:</div>
-        <div class="lote-header" id="resLote">--</div>
-        
-        <div class="label">Posición en el Archivo:</div>
-        <span class="pos-badge" id="resPos">--</span>
-        
-        <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
-        <div style="font-size: 0.8rem; color: #8892b0;" id="resDetails"></div>
-
-        <div class="neighbors-grid">
-            <div class="neighbor-box">
-                <div class="neighbor-title">⬅️ ANTERIOR (En lista)</div>
-                <div class="neighbor-val" id="resPrev">--</div>
+        <div id="result" class="result-card">
+            <div class="label">Lote:</div>
+            <div class="lote-header" id="resLote">--</div>
+            
+            <div class="label">Posición en Archivo:</div>
+            <span class="pos-badge" id="resPos">--</span>
+            
+            <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
+            
+            <div class="neighbors-grid">
+                <div class="neighbor-box">
+                    <div class="neighbor-title">⬅️ ANTERIOR</div>
+                    <div class="neighbor-val" id="resPrev">--</div>
+                </div>
+                <div class="neighbor-box">
+                    <div class="neighbor-title">SIGUIENTE ➡️</div>
+                    <div class="neighbor-val" id="resNext">--</div>
+                </div>
             </div>
-            <div class="neighbor-box">
-                <div class="neighbor-title">SIGUIENTE (En lista) ➡️</div>
-                <div class="neighbor-val" id="resNext">--</div>
+
+            <div class="obs-container">
+                <div class="label" style="margin-bottom: 5px;">Observaciones:</div>
+                <textarea id="txtObs" placeholder="Agregar comentario..."></textarea>
+                
+                <div class="buttons-row">
+                    <button class="btn-save" onclick="guardarComentario()">💾 Guardar</button>
+                    <button class="btn-delete" onclick="borrarComentario()">🗑️ Eliminar Observación</button>
+                </div>
+                
+                <div id="saveIndicator" class="save-indicator"></div>
             </div>
         </div>
     </div>
@@ -212,25 +304,32 @@
 
 <div id="summaryModal" class="modal-overlay">
     <div class="modal-content">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <h2 style="color: #fff; margin-top:0;" id="modalTitle">Resumen por Lote</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <h2 style="color: #fff; margin:0;" id="modalTitle">Resumen</h2>
+                <button class="btn-excel" onclick="descargarReporte()">📥 Bajar Reporte</button>
+            </div>
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+        </div>
         
         <div id="viewTable">
             <table>
                 <thead>
                     <tr>
+                        <th title="Marcar como terminado" style="min-width: 90px;">Estado</th>
                         <th>Lote</th>
                         <th>Inicio</th>
                         <th>Fin</th>
                         <th>Cant.</th>
-                        <th></th>
+                        <th>Obs.</th>
+                        <th>Ver IDs</th>
                     </tr>
                 </thead>
                 <tbody id="summaryTableBody"></tbody>
             </table>
         </div>
 
-        <div id="viewList" class="list-container">
+        <div id="viewList">
             <button class="btn-back" onclick="backToTable()">⬅️ Regresar a la Tabla</button>
             <div id="listGrid" class="list-grid"></div>
         </div>
@@ -238,177 +337,338 @@
 </div>
 
 <script>
-    const DATA_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
+    // ------------------------------------------------------------------
+    // CONFIGURACIÓN DE FIREBASE
+    // ------------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyB-J-t0a8snfze_ITf2ev5gTfZunqH2CfE",
+      authDomain: "organizar-carpetas-2ede2.firebaseapp.com",
+      projectId: "organizar-carpetas-2ede2",
+      storageBucket: "organizar-carpetas-2ede2.firebasestorage.app",
+      messagingSenderId: "166847054646",
+      appId: "1:166847054646:web:2227ce6d8b60eaf9d7e997",
+      measurementId: "G-ZEEXQQ077C"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ------------------------------------------------------------------
+    // LÓGICA DEL SISTEMA
+    // ------------------------------------------------------------------
+    const JSON_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
     
     let dbIndex = {};       
-    let lotesGlobal = {};   
-    
-    const statusEl = document.getElementById('status');
-    const inputEl = document.getElementById('searchInput');
-    const resultEl = document.getElementById('result');
-    const errorEl = document.getElementById('errorMsg');
-    const summaryModal = document.getElementById('summaryModal');
-    const viewTable = document.getElementById('viewTable');
-    const viewList = document.getElementById('viewList');
-    const modalTitle = document.getElementById('modalTitle');
+    let lotesGlobal = {};
+    let obsData = [];
+    let currentId = null;   
+    let currentLoteName = null;
 
-    // Cargar datos
-    fetch(DATA_URL)
-        .then(res => res.ok ? res.json() : Promise.reject("Error red"))
-        .then(data => {
-            procesarDatos(data);
-            generarResumen();
-            statusEl.textContent = `✅ Base lista: ${data.length} registros cargados`;
-            statusEl.className = 'status-bar status-success';
-            inputEl.disabled = false;
-            inputEl.focus();
-        })
-        .catch(err => {
-            statusEl.innerHTML = `⚠️ Error. <a href="#" onclick="location.reload()" style="color:#fff">Reintentar</a>`;
-            statusEl.className = 'status-bar status-error';
-        });
+    window.onload = async () => {
+        try {
+            const response = await fetch(JSON_URL);
+            const data = await response.json();
+            procesarEstructura(data);
+            activarListeners(); 
 
-    function procesarDatos(jsonArray) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('appInterface').style.display = 'block';
+        } catch (error) {
+            console.error(error);
+            document.getElementById('loading').innerHTML = `<span style="color:#ff5252">❌ ERROR DE RED</span>`;
+        }
+    };
+
+    function procesarEstructura(jsonArray) {
         lotesGlobal = {};
-        
-        // 1. Agrupar manteniendo el orden de llegada (NO ORDENAR)
         jsonArray.forEach(item => {
             const lote = item.Lote || "SIN_LOTE";
-            if (!lotesGlobal[lote]) lotesGlobal[lote] = [];
-            lotesGlobal[lote].push(item);
+            if (!lotesGlobal[lote]) lotesGlobal[lote] = { items: [], terminado: false };
+            lotesGlobal[lote].items.push(item);
         });
 
-        // 2. Indexar tal cual viene en el archivo
         for (const lote in lotesGlobal) {
-            // AQUÍ ELIMINAMOS EL .sort()
-            // Se respeta el orden natural del JSON/Excel
-            
-            const items = lotesGlobal[lote];
+            const items = lotesGlobal[lote].items;
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
                 if (idFull) {
                     const info = {
                         lote: lote,
-                        posicion: index + 1, // Posición 1 = Primer renglón del lote
+                        posicion: index + 1,
                         indexArray: index,
                         extra: item.Etiqueta || "",
                         idReal: idFull
                     };
-
                     dbIndex[idFull] = info;
-                    if (idFull.startsWith("MC")) {
-                        dbIndex[idFull.replace("MC", "")] = info;
-                    }
+                    if (idFull.startsWith("MC")) dbIndex[idFull.replace("MC", "")] = info;
                 }
+            });
+        }
+        generarTablaResumen();
+    }
+
+    function activarListeners() {
+        db.collection("estados_lotes").onSnapshot((snapshot) => {
+            snapshot.docChanges().forEach((change) => {
+                const loteName = change.doc.id;
+                const data = change.doc.data();
+                if (lotesGlobal[loteName]) {
+                    lotesGlobal[loteName].terminado = data.terminado;
+                }
+            });
+            generarTablaResumen();
+        });
+
+        db.collection("observaciones").onSnapshot((snapshot) => {
+            obsData = [];
+            snapshot.forEach(doc => {
+                let obj = doc.data();
+                obj.id = doc.id; 
+                obsData.push(obj);
+            });
+            generarTablaResumen();
+        });
+    }
+
+    const searchInput = document.getElementById('searchInput');
+    const resultCard = document.getElementById('result');
+    
+    searchInput.addEventListener('input', async (e) => {
+        const query = e.target.value.trim().toUpperCase();
+        if (query.length === 0) { resultCard.classList.remove('show'); return; }
+
+        const match = dbIndex[query];
+        if (match) {
+            currentId = match.idReal;
+            currentLoteName = match.lote;
+
+            document.getElementById('resLote').textContent = match.lote;
+            document.getElementById('resPos').textContent = "#" + match.posicion;
+            document.getElementById('resOriginalId').textContent = match.idReal + " - " + match.extra;
+            
+            const lista = lotesGlobal[match.lote].items;
+            const idx = match.indexArray;
+            document.getElementById('resPrev').textContent = (idx > 0) ? lista[idx-1].id_bct : "(Inicio)";
+            document.getElementById('resNext').textContent = (idx < lista.length-1) ? lista[idx+1].id_bct : "(Fin)";
+
+            document.getElementById('txtObs').value = "Cargando...";
+            db.collection("observaciones").doc(currentId).get().then((doc) => {
+                if (doc.exists) {
+                    document.getElementById('txtObs').value = doc.data().texto;
+                } else {
+                    document.getElementById('txtObs').value = "";
+                }
+            });
+
+            document.getElementById('errorMsg').style.display = 'none';
+            resultCard.classList.add('show');
+        } else {
+            resultCard.classList.remove('show');
+            if (query.length > 3) document.getElementById('errorMsg').style.display = 'block';
+        }
+    });
+
+    function guardarComentario() {
+        const txt = document.getElementById('txtObs').value;
+        const indicador = document.getElementById('saveIndicator');
+        
+        if(!currentId) return;
+
+        indicador.textContent = "Guardando...";
+        
+        db.collection("observaciones").doc(currentId).set({
+            texto: txt,
+            fecha: new Date(),
+            lote: currentLoteName
+        }, { merge: true })
+        .then(() => {
+            indicador.textContent = "✅ Guardado";
+            setTimeout(() => indicador.textContent = "", 2000);
+        })
+        .catch((err) => {
+            console.error(err);
+            indicador.textContent = "❌ Error";
+        });
+    }
+
+    function borrarComentario() {
+        const indicador = document.getElementById('saveIndicator');
+        if(!currentId) return;
+        
+        if(confirm("¿Seguro de eliminar esta observación?")) {
+            indicador.textContent = "Eliminando...";
+            db.collection("observaciones").doc(currentId).delete()
+            .then(() => {
+                document.getElementById('txtObs').value = "";
+                indicador.textContent = "🗑️ Eliminado";
+                setTimeout(() => indicador.textContent = "", 2000);
+            })
+            .catch((err) => {
+                console.error(err);
+                indicador.textContent = "❌ Error al borrar";
             });
         }
     }
 
-    function generarResumen() {
+    function cambiarEstadoLote(loteName, checkbox) {
+        db.collection("estados_lotes").doc(loteName).set({
+            terminado: checkbox.checked
+        }, { merge: true });
+    }
+
+    async function descargarReporte() {
+        const btn = document.querySelector('.btn-excel');
+        const originalText = btn.textContent;
+        btn.textContent = "⏳ ...";
+        
+        try {
+            const snapshot = await db.collection("observaciones").get();
+            
+            if (snapshot.empty) {
+                alert("No hay observaciones.");
+                btn.textContent = originalText;
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "ID Protocolo,Lote,Comentario,Fecha\n"; 
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const fecha = data.fecha ? data.fecha.toDate().toLocaleDateString() : "-";
+                const comentarioSeguro = data.texto ? `"${data.texto.replace(/"/g, '""')}"` : "";
+                
+                const row = `${doc.id},${data.lote},${comentarioSeguro},${fecha}`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "reporte_observaciones_v20.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            btn.textContent = "✅ Listo";
+            setTimeout(() => btn.textContent = originalText, 2000);
+
+        } catch (error) {
+            console.error(error);
+            alert("Error al descargar.");
+            btn.textContent = originalText;
+        }
+    }
+
+    function generarTablaResumen() {
         const tbody = document.getElementById('summaryTableBody');
         let html = '';
         const nombresLotes = Object.keys(lotesGlobal).sort();
         
         nombresLotes.forEach(nombre => {
-            const items = lotesGlobal[nombre];
-            if(items.length > 0) {
-                const primero = items[0].id_bct || "N/A";
-                const ultimo = items[items.length - 1].id_bct || "N/A";
-                
-                html += `<tr>
-                    <td><b>${nombre}</b></td>
-                    <td class="cell-id">${primero}</td>
-                    <td class="cell-id">${ultimo}</td>
-                    <td>${items.length}</td>
-                    <td><button class="btn-mini" onclick="verListaCompleta('${nombre}')">Ver</button></td>
-                </tr>`;
+            const data = lotesGlobal[nombre];
+            const items = data.items;
+            const primero = items.length > 0 ? items[0].id_bct : "-";
+            const ultimo = items.length > 0 ? items[items.length-1].id_bct : "-";
+            const checked = data.terminado ? "checked" : "";
+            const rowClass = data.terminado ? "row-finished" : "";
+            
+            const obsCount = obsData.filter(o => o.lote === nombre && o.texto && o.texto.trim() !== "").length;
+            
+            let obsButton = `<span class="obs-badge">0</span>`;
+            if (obsCount > 0) {
+                obsButton = `<button class="btn-obs-active" onclick="verObservaciones('${nombre}')">${obsCount} 👁️</button>`;
             }
+
+            html += `<tr class="${rowClass}">
+                <td style="text-align:center;">
+                    <div class="switch-container">
+                        <label class="switch">
+                            <input type="checkbox" ${checked} onclick="cambiarEstadoLote('${nombre}', this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">TERMINADO</span>
+                    </div>
+                </td>
+                <td><b>${nombre}</b></td>
+                <td class="cell-id">${primero}</td>
+                <td class="cell-id">${ultimo}</td>
+                <td style="text-align:center;">${items.length}</td>
+                <td style="text-align:center;">${obsButton}</td>
+                <td><button class="btn-mini" onclick="verLista('${nombre}')">Ver IDs</button></td>
+            </tr>`;
         });
         tbody.innerHTML = html;
     }
 
-    // Funciones para ver lista completa
-    function verListaCompleta(nombreLote) {
-        viewTable.style.display = 'none';
-        viewList.style.display = 'block';
-        modalTitle.textContent = "📂 " + nombreLote;
+    // --- VER LISTA NORMAL (CUADRÍCULA) ---
+    function verLista(nombre) {
+        document.getElementById('viewTable').style.display = 'none';
+        document.getElementById('viewList').style.display = 'flex';
+        document.getElementById('modalTitle').textContent = "📂 " + nombre;
         
         const grid = document.getElementById('listGrid');
-        const items = lotesGlobal[nombreLote];
+        
+        // Estilo Cuadrícula
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(90px, 1fr))";
+
+        const items = lotesGlobal[nombre].items;
         let html = '';
         items.forEach((item, idx) => {
-            html += `<div class="grid-item"><span class="grid-index">#${idx+1}</span>${item.id_bct}</div>`;
+            html += `<div class="grid-item">
+                <span class="grid-index">#${idx+1}</span>
+                ${item.id_bct}
+            </div>`;
         });
         grid.innerHTML = html;
     }
 
-    function backToTable() {
-        viewTable.style.display = 'block';
-        viewList.style.display = 'none';
-        modalTitle.textContent = "Resumen por Lote";
-    }
-
-    function toggleSummary() {
-        summaryModal.style.display = 'flex';
-        backToTable(); // Reiniciar vista
-    }
-    function closeModal() {
-        summaryModal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target == summaryModal) closeModal();
-    }
-
-    // Búsqueda
-    inputEl.addEventListener('input', (e) => {
-        let query = e.target.value.trim().toUpperCase();
+    // --- VER SOLO OBSERVACIONES (TARJETAS ROJAS) ---
+    function verObservaciones(nombre) {
+        document.getElementById('viewTable').style.display = 'none';
+        document.getElementById('viewList').style.display = 'flex';
+        document.getElementById('modalTitle').textContent = "⚠️ Obs: " + nombre;
         
-        if (query.length === 0) {
-            resultEl.classList.remove('show');
-            errorEl.style.display = 'none';
-            return;
-        }
+        const grid = document.getElementById('listGrid');
+        
+        // Estilo Lista Vertical (Para que quepan las tarjetas)
+        grid.style.display = "block"; 
+        
+        const items = lotesGlobal[nombre].items;
+        
+        let html = '';
+        let count = 0;
 
-        const match = dbIndex[query];
-
-        if (match) {
-            document.getElementById('resLote').textContent = match.lote;
-            document.getElementById('resPos').textContent = "#" + match.posicion;
-            document.getElementById('resDetails').textContent = match.extra;
-            document.getElementById('resOriginalId').textContent = match.idReal;
-
-            const listaLote = lotesGlobal[match.lote];
-            const idx = match.indexArray;
+        items.forEach((item, idx) => {
+            const obs = obsData.find(o => o.id === item.id_bct && o.texto && o.texto.trim() !== "");
             
-            if (idx > 0) {
-                document.getElementById('resPrev').textContent = listaLote[idx - 1].id_bct;
-                document.getElementById('resPrev').className = 'neighbor-val';
-            } else {
-                document.getElementById('resPrev').textContent = "(Es el primero)";
-                document.getElementById('resPrev').className = 'neighbor-val neighbor-none';
+            if (obs) {
+                count++;
+                html += `
+                <div class="obs-card">
+                    <div class="obs-card-header">
+                        <span class="obs-id-title">${item.id_bct}</span>
+                        <span class="obs-pos">Pos: #${idx+1}</span>
+                    </div>
+                    <div class="obs-text">${obs.texto}</div>
+                </div>`;
             }
+        });
 
-            if (idx < listaLote.length - 1) {
-                document.getElementById('resNext').textContent = listaLote[idx + 1].id_bct;
-                document.getElementById('resNext').className = 'neighbor-val';
-            } else {
-                document.getElementById('resNext').textContent = "(Es el último)";
-                document.getElementById('resNext').className = 'neighbor-val neighbor-none';
-            }
-            
-            resultEl.classList.add('show');
-            errorEl.style.display = 'none';
-        } else {
-            resultEl.classList.remove('show');
-            if (query.length > 3) errorEl.style.display = 'block';
-            else errorEl.style.display = 'none';
-        }
-    });
+        if (count === 0) html = "<div style='color:white; padding:20px;'>Error: No se encontraron los datos.</div>";
+        grid.innerHTML = html;
+    }
 
-    inputEl.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') e.preventDefault();
-    });
+    function toggleSummary() { document.getElementById('summaryModal').style.display = 'flex'; backToTable(); }
+    function closeModal() { document.getElementById('summaryModal').style.display = 'none'; }
+    function backToTable() { 
+        document.getElementById('viewTable').style.display = 'block'; 
+        document.getElementById('viewList').style.display = 'none'; 
+        document.getElementById('modalTitle').textContent = "Resumen";
+    }
+    window.onclick = (e) => { if (e.target == document.getElementById('summaryModal')) closeModal(); }
+
 </script>
 
 </body>
