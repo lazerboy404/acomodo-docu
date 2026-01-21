@@ -40,216 +40,122 @@
 
         /* --- BOTÓN DE RESUMEN --- */
         .btn-summary {
-            background: #1d2d50;
-            color: #00e5ff;
-            border: 1px solid #233554;
-            padding: 12px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            transition: all 0.2s;
-            font-weight: bold;
-            width: 100%;
+            background: #1d2d50; color: #00e5ff; border: 1px solid #233554;
+            padding: 12px 15px; border-radius: 20px; cursor: pointer; font-size: 1rem;
+            margin-bottom: 20px; transition: all 0.2s; font-weight: bold; width: 100%;
             display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .btn-summary:hover { background: #233554; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
 
-        /* --- INPUT --- */
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
-            background-color: #1d2d50;
-            color: #00e5ff;
-            border: 2px solid #233554;
-            border-radius: 8px;
-            text-align: center;
-            text-transform: uppercase;
-            box-sizing: border-box;
-            margin-bottom: 5px;
+        /* --- PESTAÑAS DE BÚSQUEDA --- */
+        .search-tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+        .tab-btn {
+            flex: 1; background: transparent; border: 1px solid #233554; color: #8892b0;
+            padding: 10px; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .tab-btn.active { background: #00e5ff; color: #0a192f; border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.4); }
+
+        /* --- INPUTS Y SELECTS --- */
+        input[type="text"], input[type="number"], textarea, select {
+            width: 100%; padding: 15px; font-size: 1.2rem;
+            background-color: #1d2d50; color: #00e5ff;
+            border: 2px solid #233554; border-radius: 8px;
+            text-align: center; box-sizing: border-box; margin-bottom: 10px;
             font-family: 'Segoe UI', sans-serif;
         }
-        input[type="text"]:focus, textarea:focus { border-color: #00e5ff; outline: none; background-color: #172a45; }
+        input:focus, textarea:focus, select:focus { border-color: #00e5ff; outline: none; background-color: #172a45; }
         
-        textarea {
-            font-size: 0.9rem;
-            text-align: left;
-            min-height: 80px;
-            resize: vertical;
-            color: #fff;
-            margin-top: 5px;
-        }
+        select { text-align-last: center; cursor: pointer; -webkit-appearance: none; }
+        textarea { font-size: 0.9rem; text-align: left; min-height: 80px; resize: vertical; color: #fff; margin-top: 5px; }
 
         /* --- ESTADO Y ERROR --- */
         .status-bar { margin: 10px 0; padding: 8px; border-radius: 5px; font-size: 0.85rem; }
         .status-loading { color: #8892b0; }
-        .status-success { color: #00e5ff; }
         .error-msg { color: #ff5252; display: none; margin-top: 10px; font-weight: bold; }
 
         /* --- TARJETA DE RESULTADO --- */
         .result-card {
-            display: none;
-            margin-top: 20px;
-            padding: 20px;
-            border: 2px solid #00e5ff;
-            border-radius: 12px;
-            background-color: #112240;
-            box-shadow: 0 0 20px rgba(0,229,255,0.1);
+            display: none; margin-top: 20px; padding: 20px; border: 2px solid #00e5ff;
+            border-radius: 12px; background-color: #112240; box-shadow: 0 0 20px rgba(0,229,255,0.1);
         }
         .result-card.show { display: block; animation: slideUp 0.3s; }
 
         .lote-header { font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 10px; line-height: 1.2; }
-        .pos-badge { font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; line-height: 1; margin: 10px 0; text-shadow: 0 0 15px rgba(0,229,255,0.4); }
+        
+        /* Ajuste de tamaño para cuando el ID es muy largo en modo posición */
+        .pos-badge { 
+            font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; 
+            line-height: 1; margin: 10px 0; text-shadow: 0 0 15px rgba(0,229,255,0.4);
+            word-break: break-all; /* Para que el ID no se salga si es largo */
+        }
+        
         .label { font-size: 0.8rem; color: #8892b0; text-transform: uppercase; }
 
         /* --- VECINOS --- */
-        .neighbors-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            border-top: 1px solid #233554;
-            padding-top: 15px;
-        }
+        .neighbors-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; margin-bottom: 20px; border-top: 1px solid #233554; padding-top: 15px; }
         .neighbor-box { background: #1d2d50; padding: 10px; border-radius: 8px; font-size: 0.85rem; }
         .neighbor-title { color: #8892b0; font-size: 0.75rem; margin-bottom: 5px; }
         .neighbor-val { color: #fff; font-weight: bold; word-break: break-all; font-size: 1.2rem; }
 
         /* --- OBSERVACIONES & BOTONES --- */
-        .obs-container {
-            border-top: 1px solid #233554;
-            padding-top: 15px;
-            text-align: left;
-        }
-        
-        .buttons-row {
-            display: flex;
-            gap: 10px;
-            margin-top: 8px;
-        }
-
-        .btn-save {
-            background: #00e5ff; color: #0a192f; border: none; padding: 10px;
-            border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer;
-        }
+        .obs-container { border-top: 1px solid #233554; padding-top: 15px; text-align: left; }
+        .buttons-row { display: flex; gap: 10px; margin-top: 8px; }
+        .btn-save { background: #00e5ff; color: #0a192f; border: none; padding: 10px; border-radius: 5px; width: 100%; font-weight: bold; cursor: pointer; }
         .btn-save:hover { opacity: 0.9; }
-
-        .btn-delete {
-            background: #1d2d50; color: #ff5252; border: 1px solid #ff5252; padding: 10px;
-            border-radius: 5px; width: 60%; 
-            font-weight: bold; cursor: pointer; font-size: 0.8rem;
-        }
+        .btn-delete { background: #1d2d50; color: #ff5252; border: 1px solid #ff5252; padding: 10px; border-radius: 5px; width: 60%; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .btn-delete:hover { background: #ff5252; color: #fff; }
-
         .save-indicator { font-size: 0.75rem; color: #00ff88; margin-top: 5px; text-align: center; height: 1em; }
 
         /* --- MODAL DE RESUMEN --- */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 25, 47, 0.95); z-index: 100;
-            backdrop-filter: blur(5px);
-            display: none; justify-content: center; align-items: flex-start;
-            padding-top: 40px; 
-        }
-        .modal-content {
-            background: #112240; width: 90%; max-width: 800px;
-            padding: 20px; border-radius: 10px; border: 1px solid #233554;
-            margin-bottom: 40px;
-            display: flex; flex-direction: column;
-            max-height: 85vh;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 25, 47, 0.95); z-index: 100; backdrop-filter: blur(5px); display: none; justify-content: center; align-items: flex-start; padding-top: 40px; }
+        .modal-content { background: #112240; width: 90%; max-width: 800px; padding: 20px; border-radius: 10px; border: 1px solid #233554; margin-bottom: 40px; display: flex; flex-direction: column; max-height: 85vh; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .modal-close { font-size: 1.5rem; cursor: pointer; color: #fff; margin-left: 15px;}
-        
-        .btn-excel {
-            background: #107c41; color: white; border: none; padding: 6px 12px;
-            border-radius: 5px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold;
-        }
+        .btn-excel { background: #107c41; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-weight: bold; }
         .btn-excel:hover { background: #0c5e31; }
 
-        /* --- TABLA DE LOTES --- */
+        /* --- TABLA --- */
         #viewTable { overflow-y: auto; flex-grow: 1; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
         th { text-align: left; color: #00e5ff; border-bottom: 2px solid #233554; padding: 10px 8px; position: sticky; top: 0; background: #112240; z-index: 2; }
         td { padding: 10px 8px; border-bottom: 1px solid #1d2d50; color: #ccd6f6; vertical-align: middle; }
         .cell-id { font-family: monospace; color: #fff; }
         
-        /* SWITCH TERMINADO */
+        /* SWITCH */
         .switch-container { display: flex; align-items: center; gap: 8px; }
         .switch { position: relative; display: inline-block; width: 36px; height: 18px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #1d2d50; border: 1px solid #233554; transition: .4s; border-radius: 20px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px;
-            background-color: #8892b0; transition: .4s; border-radius: 50%;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #1d2d50; border: 1px solid #233554; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 2px; bottom: 2px; background-color: #8892b0; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: rgba(0, 255, 136, 0.2); border-color: #00ff88; }
         input:checked + .slider:before { transform: translateX(18px); background-color: #00ff88; box-shadow: 0 0 10px #00ff88; }
-        
         .switch-label { font-size: 0.7rem; font-weight: bold; color: #00ff88; display: none; text-shadow: 0 0 5px rgba(0, 255, 136, 0.4); }
-        
-        /* EFECTO NEÓN EN FILA TERMINADA */
         .row-finished td { color: #00ff88 !important; text-shadow: 0 0 2px rgba(0, 255, 136, 0.3); transition: 0.3s; }
         .row-finished .cell-id { color: #00ff88 !important; }
         .row-finished .switch-label { display: inline-block; }
 
-        /* BOTON DE OBSERVACIONES */
-        .obs-badge {
-            display: inline-block; background: #233554; color: #8892b0; 
-            padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;
-            min-width: 20px; text-align: center;
-        }
-        
-        .btn-obs-active { 
-            background: #ff5252; color: white; border: none; 
-            padding: 4px 10px; border-radius: 15px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 0 5px rgba(255, 82, 82, 0.5); font-size: 0.8rem;
-            transition: 0.2s;
-        }
+        /* OBS BADGE */
+        .obs-badge { display: inline-block; background: #233554; color: #8892b0; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; min-width: 20px; text-align: center; }
+        .btn-obs-active { background: #ff5252; color: white; border: none; padding: 4px 10px; border-radius: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 0 5px rgba(255, 82, 82, 0.5); font-size: 0.8rem; transition: 0.2s; }
         .btn-obs-active:hover { transform: scale(1.1); background: #ff1744; }
 
         /* --- LISTA Y TARJETAS --- */
         #viewList { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+        .view-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
         .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 8px; overflow-y: auto; padding: 5px; flex-grow: 1; }
-        
         .grid-item { background: #1d2d50; border: 1px solid #233554; border-radius: 6px; padding: 10px 5px; text-align: center; font-size: 1.1rem; font-weight: bold; color: #fff; }
         .grid-index { font-size: 1rem; color: #00e5ff; font-weight: bold; display: block; margin-bottom: 4px; }
         
-        /* --- TARJETA DE ALERTA ROJA (OBSERVACIONES) --- */
-        .obs-card {
-            background: rgba(255, 82, 82, 0.08); /* Fondo rojo muy suave */
-            border: 1px solid #ff5252;
-            border-left: 5px solid #ff5252; /* Borde izquierdo grueso */
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px; /* Espacio entre tarjetas para que no se amontonen */
-            text-align: left;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        
-        .obs-card-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255, 82, 82, 0.3);
-            padding-bottom: 8px; margin-bottom: 8px;
-        }
-        
+        .obs-card { background: rgba(255, 82, 82, 0.08); border: 1px solid #ff5252; border-left: 5px solid #ff5252; border-radius: 8px; padding: 15px; margin-bottom: 12px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .obs-card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 82, 82, 0.3); padding-bottom: 8px; margin-bottom: 8px; }
         .obs-id-title { color: #ff5252; font-weight: bold; font-size: 1.3rem; letter-spacing: 1px; }
         .obs-pos { color: #ff8a80; font-size: 0.9rem; font-weight: bold;}
-        .obs-text { 
-            color: #ffebee; 
-            font-size: 1rem; 
-            line-height: 1.5; /* Espacio entre líneas de texto */
-            white-space: pre-wrap; 
-        }
+        .obs-text { color: #ffebee; font-size: 1rem; line-height: 1.5; white-space: pre-wrap; }
 
         .btn-mini { background: none; border: 1px solid #233554; color: #8892b0; border-radius: 4px; cursor: pointer; font-size: 0.75rem; padding: 4px 8px; }
         .btn-mini:hover { border-color: #00e5ff; color: #00e5ff; }
-        .btn-back { width: 100%; padding: 12px; background: #1d2d50; color: white; border: none; margin-bottom: 10px; border-radius: 5px; cursor: pointer; flex-shrink: 0; font-weight: bold; }
+        .btn-back { background: #1d2d50; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; flex-grow: 1; }
+        .btn-download-list { background: #107c41; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
+        .btn-download-list:hover { background: #0c5e31; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -259,19 +165,36 @@
 <div class="container">
     <h1>📍 Localizador</h1>
     
-    <button class="btn-summary" onclick="toggleSummary()">📋 Resumen / Reporte / Observaciones</button>
+    <button class="btn-summary" onclick="toggleSummary()">📋 Resumen / Reporte / Marcar</button>
     
     <div id="loading" class="status-bar status-loading">📡 Conectando a Base de Datos...</div>
     
     <div id="appInterface" style="display:none; width: 100%;">
-        <input type="text" id="searchInput" placeholder="ID (ej. 26964)" autocomplete="off">
-        <div id="errorMsg" class="error-msg">❌ ID NO ENCONTRADO</div>
+        
+        <div class="search-tabs">
+            <button id="tabID" class="tab-btn active" onclick="switchMode('id')">🔍 Por ID</button>
+            <button id="tabPos" class="tab-btn" onclick="switchMode('pos')">🔢 Por Posición</button>
+        </div>
+
+        <div id="modeID">
+            <input type="text" id="searchInput" placeholder="Escribe ID (ej. 26964)" autocomplete="off">
+        </div>
+
+        <div id="modePos" style="display:none;">
+            <select id="loteSelect" onchange="searchByPos()">
+                <option value="" disabled selected>-- Selecciona Lote --</option>
+            </select>
+            <input type="number" id="posInput" placeholder="N° Posición (ej. 50)" oninput="searchByPos()">
+        </div>
+
+        <div id="errorMsg" class="error-msg">❌ NO ENCONTRADO</div>
 
         <div id="result" class="result-card">
             <div class="label">Lote:</div>
             <div class="lote-header" id="resLote">--</div>
             
-            <div class="label">Posición en Archivo:</div>
+            <div class="label" id="lblMainResult">Posición en Archivo:</div>
+            
             <span class="pos-badge" id="resPos">--</span>
             
             <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
@@ -288,7 +211,7 @@
             </div>
 
             <div class="obs-container">
-                <div class="label" style="margin-bottom: 5px;">Observaciones:</div>
+                <div class="label" style="margin-bottom: 5px;">Observaciones (Guardadas en Nube):</div>
                 <textarea id="txtObs" placeholder="Agregar comentario..."></textarea>
                 
                 <div class="buttons-row">
@@ -307,7 +230,7 @@
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <div style="display:flex; align-items:center; gap:10px;">
                 <h2 style="color: #fff; margin:0;" id="modalTitle">Resumen</h2>
-                <button class="btn-excel" onclick="descargarReporte()">📥 Bajar Reporte</button>
+                <button id="btnGlobalReport" class="btn-excel" onclick="descargarReporte()">📥 Bajar Reporte</button>
             </div>
             <span class="modal-close" onclick="closeModal()">&times;</span>
         </div>
@@ -330,16 +253,16 @@
         </div>
 
         <div id="viewList">
-            <button class="btn-back" onclick="backToTable()">⬅️ Regresar a la Tabla</button>
+            <div class="view-list-header">
+                <button class="btn-back" onclick="backToTable()">⬅️ Regresar</button>
+                <button id="btnDownloadLote" class="btn-download-list" onclick="descargarListaLote()">📥 Descargar Lista</button>
+            </div>
             <div id="listGrid" class="list-grid"></div>
         </div>
     </div>
 </div>
 
 <script>
-    // ------------------------------------------------------------------
-    // CONFIGURACIÓN DE FIREBASE
-    // ------------------------------------------------------------------
     const firebaseConfig = {
       apiKey: "AIzaSyB-J-t0a8snfze_ITf2ev5gTfZunqH2CfE",
       authDomain: "organizar-carpetas-2ede2.firebaseapp.com",
@@ -353,9 +276,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ------------------------------------------------------------------
-    // LÓGICA DEL SISTEMA
-    // ------------------------------------------------------------------
     const JSON_URL = 'https://raw.githubusercontent.com/lazerboy404/acomodo-docu/main/base-angela.json';
     
     let dbIndex = {};       
@@ -363,6 +283,8 @@
     let obsData = [];
     let currentId = null;   
     let currentLoteName = null;
+    let currentViewLote = null;
+    let currentMode = 'id'; // 'id' o 'pos'
 
     window.onload = async () => {
         try {
@@ -387,13 +309,23 @@
             lotesGlobal[lote].items.push(item);
         });
 
-        for (const lote in lotesGlobal) {
-            const items = lotesGlobal[lote].items;
+        // Llenar Select de Lotes
+        const select = document.getElementById('loteSelect');
+        const nombresLotes = Object.keys(lotesGlobal).sort();
+        
+        nombresLotes.forEach(nombre => {
+            const option = document.createElement("option");
+            option.value = nombre;
+            option.text = nombre;
+            select.appendChild(option);
+            
+            // Indexar IDs
+            const items = lotesGlobal[nombre].items;
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
                 if (idFull) {
                     const info = {
-                        lote: lote,
+                        lote: nombre,
                         posicion: index + 1,
                         indexArray: index,
                         extra: item.Etiqueta || "",
@@ -403,7 +335,8 @@
                     if (idFull.startsWith("MC")) dbIndex[idFull.replace("MC", "")] = info;
                 }
             });
-        }
+        });
+        
         generarTablaResumen();
     }
 
@@ -430,21 +363,83 @@
         });
     }
 
+    // --- CAMBIO DE MODO ---
+    function switchMode(mode) {
+        currentMode = mode;
+        document.getElementById('result').classList.remove('show');
+        document.getElementById('errorMsg').style.display = 'none';
+        
+        if(mode === 'id') {
+            document.getElementById('modeID').style.display = 'block';
+            document.getElementById('modePos').style.display = 'none';
+            document.getElementById('tabID').classList.add('active');
+            document.getElementById('tabPos').classList.remove('active');
+            document.getElementById('searchInput').focus();
+        } else {
+            document.getElementById('modeID').style.display = 'none';
+            document.getElementById('modePos').style.display = 'block';
+            document.getElementById('tabID').classList.remove('active');
+            document.getElementById('tabPos').classList.add('active');
+        }
+    }
+
+    // --- BÚSQUEDA POR ID ---
     const searchInput = document.getElementById('searchInput');
-    const resultCard = document.getElementById('result');
-    
     searchInput.addEventListener('input', async (e) => {
         const query = e.target.value.trim().toUpperCase();
-        if (query.length === 0) { resultCard.classList.remove('show'); return; }
-
+        if (query.length === 0) { document.getElementById('result').classList.remove('show'); return; }
         const match = dbIndex[query];
+        renderResult(match);
+    });
+
+    // --- BÚSQUEDA POR POSICIÓN ---
+    function searchByPos() {
+        const lote = document.getElementById('loteSelect').value;
+        const pos = parseInt(document.getElementById('posInput').value);
+        
+        if (!lote || !pos) return;
+
+        const items = lotesGlobal[lote].items;
+        if (pos > 0 && pos <= items.length) {
+            const item = items[pos - 1];
+            const match = {
+                lote: lote,
+                posicion: pos,
+                indexArray: pos - 1,
+                extra: item.Etiqueta || "",
+                idReal: item.id_bct
+            };
+            renderResult(match);
+        } else {
+            document.getElementById('result').classList.remove('show');
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsg').textContent = "❌ Posición fuera de rango";
+        }
+    }
+
+    // --- RENDERIZADO INTELIGENTE ---
+    function renderResult(match) {
+        const resultCard = document.getElementById('result');
+        const errorMsg = document.getElementById('errorMsg');
+
         if (match) {
             currentId = match.idReal;
             currentLoteName = match.lote;
 
             document.getElementById('resLote').textContent = match.lote;
-            document.getElementById('resPos').textContent = "#" + match.posicion;
-            document.getElementById('resOriginalId').textContent = match.idReal + " - " + match.extra;
+            
+            // LÓGICA DE INVERSIÓN (LA MAGIA)
+            if (currentMode === 'id') {
+                // Modo Normal: Busco ID -> Veo Posición Grande
+                document.getElementById('lblMainResult').textContent = "Posición en Archivo:";
+                document.getElementById('resPos').textContent = "#" + match.posicion;
+                document.getElementById('resOriginalId').textContent = "ID: " + match.idReal + " " + match.extra;
+            } else {
+                // Modo Posición: Busco Pos -> Veo ID Grande
+                document.getElementById('lblMainResult').textContent = "ID Encontrado:";
+                document.getElementById('resPos').textContent = match.idReal; // ID en Grande
+                document.getElementById('resOriginalId').textContent = "Posición: #" + match.posicion;
+            }
             
             const lista = lotesGlobal[match.lote].items;
             const idx = match.indexArray;
@@ -460,111 +455,90 @@
                 }
             });
 
-            document.getElementById('errorMsg').style.display = 'none';
+            errorMsg.style.display = 'none';
             resultCard.classList.add('show');
         } else {
             resultCard.classList.remove('show');
-            if (query.length > 3) document.getElementById('errorMsg').style.display = 'block';
+            errorMsg.style.display = 'block';
+            errorMsg.textContent = "❌ NO ENCONTRADO";
         }
-    });
+    }
 
+    // --- FUNCIONES DB & UI ---
     function guardarComentario() {
         const txt = document.getElementById('txtObs').value;
         const indicador = document.getElementById('saveIndicator');
-        
         if(!currentId) return;
-
         indicador.textContent = "Guardando...";
-        
         db.collection("observaciones").doc(currentId).set({
-            texto: txt,
-            fecha: new Date(),
-            lote: currentLoteName
-        }, { merge: true })
-        .then(() => {
+            texto: txt, fecha: new Date(), lote: currentLoteName
+        }, { merge: true }).then(() => {
             indicador.textContent = "✅ Guardado";
             setTimeout(() => indicador.textContent = "", 2000);
-        })
-        .catch((err) => {
-            console.error(err);
-            indicador.textContent = "❌ Error";
         });
     }
 
     function borrarComentario() {
         const indicador = document.getElementById('saveIndicator');
         if(!currentId) return;
-        
         if(confirm("¿Seguro de eliminar esta observación?")) {
             indicador.textContent = "Eliminando...";
-            db.collection("observaciones").doc(currentId).delete()
-            .then(() => {
+            db.collection("observaciones").doc(currentId).delete().then(() => {
                 document.getElementById('txtObs').value = "";
                 indicador.textContent = "🗑️ Eliminado";
                 setTimeout(() => indicador.textContent = "", 2000);
-            })
-            .catch((err) => {
-                console.error(err);
-                indicador.textContent = "❌ Error al borrar";
             });
         }
     }
 
     function cambiarEstadoLote(loteName, checkbox) {
-        db.collection("estados_lotes").doc(loteName).set({
-            terminado: checkbox.checked
-        }, { merge: true });
+        db.collection("estados_lotes").doc(loteName).set({ terminado: checkbox.checked }, { merge: true });
     }
 
     async function descargarReporte() {
         const btn = document.querySelector('.btn-excel');
         const originalText = btn.textContent;
         btn.textContent = "⏳ ...";
-        
         try {
             const snapshot = await db.collection("observaciones").get();
-            
-            if (snapshot.empty) {
-                alert("No hay observaciones.");
-                btn.textContent = originalText;
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "ID Protocolo,Lote,Comentario,Fecha\n"; 
-
+            if (snapshot.empty) { alert("No hay observaciones."); btn.textContent = originalText; return; }
+            let csvContent = "data:text/csv;charset=utf-8,ID Protocolo,Lote,Comentario,Fecha\n"; 
             snapshot.forEach(doc => {
                 const data = doc.data();
                 const fecha = data.fecha ? data.fecha.toDate().toLocaleDateString() : "-";
                 const comentarioSeguro = data.texto ? `"${data.texto.replace(/"/g, '""')}"` : "";
-                
-                const row = `${doc.id},${data.lote},${comentarioSeguro},${fecha}`;
-                csvContent += row + "\n";
+                csvContent += `${doc.id},${data.lote},${comentarioSeguro},${fecha}\n`;
             });
-
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "reporte_observaciones_v20.csv");
+            link.setAttribute("download", "reporte_observaciones_v23.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            
             btn.textContent = "✅ Listo";
             setTimeout(() => btn.textContent = originalText, 2000);
+        } catch (error) { console.error(error); alert("Error."); btn.textContent = originalText; }
+    }
 
-        } catch (error) {
-            console.error(error);
-            alert("Error al descargar.");
-            btn.textContent = originalText;
-        }
+    function descargarListaLote() {
+        if(!currentViewLote) return;
+        const items = lotesGlobal[currentViewLote].items;
+        let csvContent = "data:text/csv;charset=utf-8,Posicion,ID Protocolo\n";
+        items.forEach((item, index) => { csvContent += `${index + 1},${item.id_bct}\n`; });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Lista_${currentViewLote}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function generarTablaResumen() {
         const tbody = document.getElementById('summaryTableBody');
         let html = '';
         const nombresLotes = Object.keys(lotesGlobal).sort();
-        
         nombresLotes.forEach(nombre => {
             const data = lotesGlobal[nombre];
             const items = data.items;
@@ -572,21 +546,14 @@
             const ultimo = items.length > 0 ? items[items.length-1].id_bct : "-";
             const checked = data.terminado ? "checked" : "";
             const rowClass = data.terminado ? "row-finished" : "";
-            
             const obsCount = obsData.filter(o => o.lote === nombre && o.texto && o.texto.trim() !== "").length;
-            
             let obsButton = `<span class="obs-badge">0</span>`;
-            if (obsCount > 0) {
-                obsButton = `<button class="btn-obs-active" onclick="verObservaciones('${nombre}')">${obsCount} 👁️</button>`;
-            }
+            if (obsCount > 0) obsButton = `<button class="btn-obs-active" onclick="verObservaciones('${nombre}')">${obsCount} 👁️</button>`;
 
             html += `<tr class="${rowClass}">
                 <td style="text-align:center;">
                     <div class="switch-container">
-                        <label class="switch">
-                            <input type="checkbox" ${checked} onclick="cambiarEstadoLote('${nombre}', this)">
-                            <span class="slider"></span>
-                        </label>
+                        <label class="switch"><input type="checkbox" ${checked} onclick="cambiarEstadoLote('${nombre}', this)"><span class="slider"></span></label>
                         <span class="switch-label">TERMINADO</span>
                     </div>
                 </td>
@@ -601,61 +568,43 @@
         tbody.innerHTML = html;
     }
 
-    // --- VER LISTA NORMAL (CUADRÍCULA) ---
     function verLista(nombre) {
+        currentViewLote = nombre;
         document.getElementById('viewTable').style.display = 'none';
         document.getElementById('viewList').style.display = 'flex';
         document.getElementById('modalTitle').textContent = "📂 " + nombre;
-        
+        document.getElementById('btnGlobalReport').style.display = 'none';
+        document.getElementById('btnDownloadLote').style.display = 'flex';
         const grid = document.getElementById('listGrid');
-        
-        // Estilo Cuadrícula
         grid.style.display = "grid";
-        grid.style.gridTemplateColumns = "repeat(auto-fill, minmax(90px, 1fr))";
-
         const items = lotesGlobal[nombre].items;
         let html = '';
-        items.forEach((item, idx) => {
-            html += `<div class="grid-item">
-                <span class="grid-index">#${idx+1}</span>
-                ${item.id_bct}
-            </div>`;
-        });
+        items.forEach((item, idx) => { html += `<div class="grid-item"><span class="grid-index">#${idx+1}</span>${item.id_bct}</div>`; });
         grid.innerHTML = html;
     }
 
-    // --- VER SOLO OBSERVACIONES (TARJETAS ROJAS) ---
     function verObservaciones(nombre) {
+        currentViewLote = null;
         document.getElementById('viewTable').style.display = 'none';
         document.getElementById('viewList').style.display = 'flex';
         document.getElementById('modalTitle').textContent = "⚠️ Obs: " + nombre;
-        
+        document.getElementById('btnGlobalReport').style.display = 'none';
+        document.getElementById('btnDownloadLote').style.display = 'none';
         const grid = document.getElementById('listGrid');
-        
-        // Estilo Lista Vertical (Para que quepan las tarjetas)
-        grid.style.display = "block"; 
-        
+        grid.style.display = "block";
         const items = lotesGlobal[nombre].items;
-        
         let html = '';
         let count = 0;
-
         items.forEach((item, idx) => {
             const obs = obsData.find(o => o.id === item.id_bct && o.texto && o.texto.trim() !== "");
-            
             if (obs) {
                 count++;
-                html += `
-                <div class="obs-card">
-                    <div class="obs-card-header">
-                        <span class="obs-id-title">${item.id_bct}</span>
-                        <span class="obs-pos">Pos: #${idx+1}</span>
-                    </div>
+                html += `<div class="obs-card">
+                    <div class="obs-card-header"><span class="obs-id-title">${item.id_bct}</span><span class="obs-pos">Pos: #${idx+1}</span></div>
                     <div class="obs-text">${obs.texto}</div>
                 </div>`;
             }
         });
-
         if (count === 0) html = "<div style='color:white; padding:20px;'>Error: No se encontraron los datos.</div>";
         grid.innerHTML = html;
     }
@@ -666,6 +615,7 @@
         document.getElementById('viewTable').style.display = 'block'; 
         document.getElementById('viewList').style.display = 'none'; 
         document.getElementById('modalTitle').textContent = "Resumen";
+        document.getElementById('btnGlobalReport').style.display = 'flex';
     }
     window.onclick = (e) => { if (e.target == document.getElementById('summaryModal')) closeModal(); }
 
