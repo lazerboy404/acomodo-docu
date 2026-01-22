@@ -38,11 +38,19 @@
 
         h1 { margin: 0 0 15px 0; font-size: 1.5rem; color: #fff; text-shadow: 0 0 10px rgba(0,210,255,0.3); }
 
-        /* --- BOTÓN DE RESUMEN --- */
+        /* --- BOTONES PRINCIPALES --- */
         .btn-summary {
-            background: #1d2d50; color: #00e5ff; border: 1px solid #233554;
-            padding: 12px 15px; border-radius: 20px; cursor: pointer; font-size: 1rem;
-            margin-bottom: 20px; transition: all 0.2s; font-weight: bold; width: 100%;
+            background: #1d2d50;
+            color: #00e5ff;
+            border: 1px solid #233554;
+            padding: 12px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+            font-weight: bold;
+            width: 100%;
             display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .btn-summary:hover { background: #233554; box-shadow: 0 0 15px rgba(0,229,255,0.2); }
@@ -73,21 +81,37 @@
         .status-loading { color: #8892b0; }
         .error-msg { color: #ff5252; display: none; margin-top: 10px; font-weight: bold; }
 
+        /* --- ALERTA DE CAMBIO DE LOTE (NUEVO) --- */
+        .batch-alert {
+            display: none;
+            background-color: #ff9800; /* Naranja alerta */
+            color: #000;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+            border: 2px solid #fff;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.8; } 100% { opacity: 1; } }
+
         /* --- TARJETA DE RESULTADO --- */
         .result-card {
             display: none; margin-top: 20px; padding: 20px; border: 2px solid #00e5ff;
             border-radius: 12px; background-color: #112240; box-shadow: 0 0 20px rgba(0,229,255,0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
         .result-card.show { display: block; animation: slideUp 0.3s; }
+        
+        /* Estilo especial cuando hay Warning */
+        .result-card.warning-mode {
+            border-color: #ff9800;
+            box-shadow: 0 0 30px rgba(255, 152, 0, 0.4);
+        }
 
         .lote-header { font-size: 1.6rem; font-weight: bold; color: #fff; margin-bottom: 10px; line-height: 1.2; }
-        
-        /* Ajuste de tamaño para cuando el ID es muy largo en modo posición */
-        .pos-badge { 
-            font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; 
-            line-height: 1; margin: 10px 0; text-shadow: 0 0 15px rgba(0,229,255,0.4);
-            word-break: break-all; /* Para que el ID no se salga si es largo */
-        }
+        .pos-badge { font-size: 3rem; font-weight: 800; color: #00e5ff; display: block; line-height: 1; margin: 10px 0; text-shadow: 0 0 15px rgba(0,229,255,0.4); }
+        .warning-mode .pos-badge { color: #ff9800; text-shadow: 0 0 15px rgba(255, 152, 0, 0.6); }
         
         .label { font-size: 0.8rem; color: #8892b0; text-transform: uppercase; }
 
@@ -165,7 +189,7 @@
 <div class="container">
     <h1>📍 Localizador</h1>
     
-    <button class="btn-summary" onclick="toggleSummary()">📋 Resumen / Reporte / Agregar Observaciones</button>
+    <button class="btn-summary" onclick="toggleSummary()">📋 Resumen / Reporte / Observaciones</button>
     
     <div id="loading" class="status-bar status-loading">📡 Conectando a Base de Datos...</div>
     
@@ -189,12 +213,13 @@
 
         <div id="errorMsg" class="error-msg">❌ NO ENCONTRADO</div>
 
+        <div id="batchAlert" class="batch-alert">⚠️ ATENCIÓN: ¡CAMBIASTE DE LOTE!</div>
+
         <div id="result" class="result-card">
             <div class="label">Lote:</div>
             <div class="lote-header" id="resLote">--</div>
             
             <div class="label" id="lblMainResult">Posición en Archivo:</div>
-            
             <span class="pos-badge" id="resPos">--</span>
             
             <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
@@ -211,7 +236,7 @@
             </div>
 
             <div class="obs-container">
-                <div class="label" style="margin-bottom: 5px;">Observaciones (Guardadas en Nube):</div>
+                <div class="label" style="margin-bottom: 5px;">Observaciones:</div>
                 <textarea id="txtObs" placeholder="Agregar comentario..."></textarea>
                 
                 <div class="buttons-row">
@@ -284,7 +309,10 @@
     let currentId = null;   
     let currentLoteName = null;
     let currentViewLote = null;
-    let currentMode = 'id'; // 'id' o 'pos'
+    let currentMode = 'id';
+    
+    // VARIABLE PARA RECORDAR EL ÚLTIMO LOTE VISTO
+    let lastLoteChecked = null; 
 
     window.onload = async () => {
         try {
@@ -309,7 +337,6 @@
             lotesGlobal[lote].items.push(item);
         });
 
-        // Llenar Select de Lotes
         const select = document.getElementById('loteSelect');
         const nombresLotes = Object.keys(lotesGlobal).sort();
         
@@ -319,7 +346,6 @@
             option.text = nombre;
             select.appendChild(option);
             
-            // Indexar IDs
             const items = lotesGlobal[nombre].items;
             items.forEach((item, index) => {
                 const idFull = item.id_bct ? item.id_bct.trim().toUpperCase() : null;
@@ -363,11 +389,11 @@
         });
     }
 
-    // --- CAMBIO DE MODO ---
     function switchMode(mode) {
         currentMode = mode;
         document.getElementById('result').classList.remove('show');
         document.getElementById('errorMsg').style.display = 'none';
+        document.getElementById('batchAlert').style.display = 'none'; // Limpiar alerta al cambiar
         
         if(mode === 'id') {
             document.getElementById('modeID').style.display = 'block';
@@ -383,16 +409,18 @@
         }
     }
 
-    // --- BÚSQUEDA POR ID ---
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', async (e) => {
         const query = e.target.value.trim().toUpperCase();
-        if (query.length === 0) { document.getElementById('result').classList.remove('show'); return; }
+        if (query.length === 0) { 
+            document.getElementById('result').classList.remove('show'); 
+            document.getElementById('batchAlert').style.display = 'none';
+            return; 
+        }
         const match = dbIndex[query];
         renderResult(match);
     });
 
-    // --- BÚSQUEDA POR POSICIÓN ---
     function searchByPos() {
         const lote = document.getElementById('loteSelect').value;
         const pos = parseInt(document.getElementById('posInput').value);
@@ -417,27 +445,40 @@
         }
     }
 
-    // --- RENDERIZADO INTELIGENTE ---
+    // --- RENDERIZADO CON LÓGICA DE ALERTA DE LOTE ---
     function renderResult(match) {
         const resultCard = document.getElementById('result');
         const errorMsg = document.getElementById('errorMsg');
+        const alertBox = document.getElementById('batchAlert');
 
         if (match) {
             currentId = match.idReal;
             currentLoteName = match.lote;
 
+            // --- LÓGICA DE DETECCIÓN DE CAMBIO DE LOTE ---
+            if (lastLoteChecked !== null && lastLoteChecked !== match.lote) {
+                // CAMBIO DETECTADO
+                alertBox.style.display = "block";
+                resultCard.classList.add("warning-mode");
+                alertBox.textContent = `⚠️ CAMBIO DE LOTE: DE ${lastLoteChecked} A ${match.lote}`;
+            } else {
+                // MISMO LOTE O PRIMER INTENTO
+                alertBox.style.display = "none";
+                resultCard.classList.remove("warning-mode");
+            }
+            // Actualizar el último lote revisado
+            lastLoteChecked = match.lote;
+            // ----------------------------------------------
+
             document.getElementById('resLote').textContent = match.lote;
             
-            // LÓGICA DE INVERSIÓN (LA MAGIA)
             if (currentMode === 'id') {
-                // Modo Normal: Busco ID -> Veo Posición Grande
                 document.getElementById('lblMainResult').textContent = "Posición en Archivo:";
                 document.getElementById('resPos').textContent = "#" + match.posicion;
                 document.getElementById('resOriginalId').textContent = "ID: " + match.idReal + " " + match.extra;
             } else {
-                // Modo Posición: Busco Pos -> Veo ID Grande
                 document.getElementById('lblMainResult').textContent = "ID Encontrado:";
-                document.getElementById('resPos').textContent = match.idReal; // ID en Grande
+                document.getElementById('resPos').textContent = match.idReal; 
                 document.getElementById('resOriginalId').textContent = "Posición: #" + match.posicion;
             }
             
@@ -459,12 +500,12 @@
             resultCard.classList.add('show');
         } else {
             resultCard.classList.remove('show');
+            alertBox.style.display = "none";
             errorMsg.style.display = 'block';
             errorMsg.textContent = "❌ NO ENCONTRADO";
         }
     }
 
-    // --- FUNCIONES DB & UI ---
     function guardarComentario() {
         const txt = document.getElementById('txtObs').value;
         const indicador = document.getElementById('saveIndicator');
@@ -512,7 +553,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "reporte_observaciones_v23.csv");
+            link.setAttribute("download", "reporte_observaciones_v24.csv");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -623,4 +664,3 @@
 
 </body>
 </html>
-
