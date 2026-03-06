@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Protocolos</title>
 
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
@@ -1007,6 +1007,192 @@
             color: #d7dbff;
             font-size: 0.82rem;
             font-weight: 600;
+        }
+        @media (min-width: 1400px) {
+            body {
+                padding: 28px 20px;
+            }
+            .container {
+                max-width: 720px;
+            }
+            .modal-content {
+                max-width: 1080px;
+            }
+        }
+        @media (max-width: 1024px) {
+            body {
+                padding: 18px 10px;
+            }
+            .container {
+                max-width: 720px;
+                padding: 22px;
+            }
+            .modal-overlay {
+                padding-top: 10px;
+            }
+            .modal-content {
+                width: calc(100% - 16px);
+                max-height: 92vh;
+                padding: 18px;
+                border-radius: 20px;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 14px 8px;
+            }
+            .container {
+                padding: 18px;
+                border-radius: 18px;
+            }
+            .top-header {
+                flex-wrap: wrap;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .data-source-bar {
+                margin-left: auto;
+            }
+            .result-card {
+                padding: 16px;
+            }
+            .neighbors-grid {
+                grid-template-columns: 1fr;
+            }
+            .buttons-row {
+                flex-wrap: wrap;
+            }
+            .btn-delete {
+                width: 100%;
+            }
+            .modal-content {
+                width: calc(100% - 10px);
+                max-height: 94vh;
+                padding: 14px;
+                border-radius: 16px;
+            }
+            .modal-header {
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .modal-header-left {
+                width: 100%;
+            }
+            .modal-download-group {
+                width: 100%;
+                margin-left: 0;
+                justify-content: flex-end;
+            }
+            .modal-close {
+                margin-left: auto;
+                line-height: 1;
+            }
+            .btn-excel {
+                padding: 8px 10px;
+                font-size: 0.78rem;
+            }
+            #viewTable {
+                overflow: auto;
+            }
+            #viewTable table {
+                min-width: 640px;
+            }
+            .view-list-header {
+                gap: 6px;
+            }
+            .id-search-wrap {
+                order: 3;
+                width: 100%;
+                min-width: 0;
+                max-width: none;
+                flex: 1 1 100%;
+            }
+            .btn-download-right {
+                margin-left: 0;
+            }
+            .flow-row {
+                grid-template-columns: 64px 1fr 90px;
+                column-gap: 8px;
+                padding: 10px 8px;
+            }
+            .flow-pos {
+                font-size: 1.45rem;
+            }
+            .flow-id {
+                font-size: 1rem;
+            }
+            .flow-date {
+                font-size: 0.75rem;
+            }
+        }
+        @media (max-width: 560px) {
+            h1 {
+                font-size: 1.35rem;
+            }
+            .title-subtitle {
+                margin-left: 0;
+            }
+            .title-icon {
+                padding: 6px;
+            }
+            .search-tabs {
+                gap: 6px;
+            }
+            .tab-btn {
+                padding: 10px 8px;
+            }
+            .tab-btn span {
+                font-size: 0.8rem;
+            }
+            .btn-summary {
+                font-size: 0.9rem;
+                padding: 11px 12px;
+            }
+            .modal-title {
+                font-size: 1.02rem;
+            }
+            .modal-source-tag {
+                font-size: 0.52rem;
+            }
+            .modal-download-group .btn-excel {
+                flex: 1 1 calc(50% - 4px);
+            }
+        }
+        @media (max-width: 420px) {
+            body {
+                padding: 10px 6px;
+            }
+            .container {
+                padding: 14px;
+                border-radius: 14px;
+            }
+            .search-tabs {
+                flex-direction: column;
+            }
+            .tab-btn {
+                width: 100%;
+            }
+            .modal-content {
+                width: calc(100% - 8px);
+                padding: 12px;
+                border-radius: 14px;
+            }
+            .modal-download-group .btn-excel {
+                flex: 1 1 100%;
+            }
+            .view-list-header .btn-back,
+            .view-list-header .btn-action,
+            #btnDownloadLote {
+                width: 100%;
+            }
+            .flow-row {
+                grid-template-columns: 52px 1fr;
+                row-gap: 3px;
+            }
+            .flow-date {
+                grid-column: 2;
+                text-align: left;
+            }
         }
         @media (max-width: 520px) {
             .obs-edit-actions {
