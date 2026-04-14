@@ -398,9 +398,21 @@
             text-transform: uppercase;
             letter-spacing: 0.08em;
         }
+        #resCurrentId {
+            color: #f4f8ff !important;
+            font-size: 1.22rem !important;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
         #resOriginalId {
             color: #d8ddff !important;
-            font-size: 0.92rem !important;
+            font-size: 0.84rem !important;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            margin-bottom: 5px;
+            word-break: break-all;
         }
         .neighbors-grid {
             display: grid;
@@ -447,6 +459,12 @@
             word-break: break-all;
             font-size: 1.08rem;
             text-shadow: 0 2px 10px rgba(11, 23, 37, 0.32);
+        }
+        .neighbor-pos {
+            margin-top: 4px;
+            color: #d7e7f4;
+            font-size: 1rem;
+            font-weight: 800;
         }
         .obs-container {
             border-top: 1px solid rgba(255, 255, 255, 0.25);
@@ -1276,7 +1294,7 @@
             </select>
             <div class="search-bar">
                 <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
-                <input type="text" id="posInput" inputmode="numeric" placeholder="Ingresa el ID del protocolo" autocomplete="off" oninput="searchByPos()">
+                <input type="text" id="posInput" placeholder="Ingresa posición o ID del protocolo" autocomplete="off" oninput="searchByPos()">
             </div>
         </div>
 
@@ -1292,6 +1310,7 @@
                 <div class="label" id="lblMainResult">Posición en Archivo:</div>
                 <span class="pos-badge" id="resPos">--</span>
                 
+                <div id="resCurrentId"></div>
                 <div style="font-size: 0.9rem; color: #ccc; margin-bottom: 5px;" id="resOriginalId"></div>
             </div>
             
@@ -1299,10 +1318,12 @@
                 <div id="prevBox" class="neighbor-box" role="button" tabindex="0" onclick="goToNeighbor(-1)" onkeydown="handleNeighborKey(event, -1)">
                     <div class="neighbor-title">Anterior</div>
                     <div class="neighbor-val" id="resPrev">--</div>
+                    <div class="neighbor-pos" id="resPrevPos">Pos: --</div>
                 </div>
                 <div id="nextBox" class="neighbor-box" role="button" tabindex="0" onclick="goToNeighbor(1)" onkeydown="handleNeighborKey(event, 1)">
                     <div class="neighbor-title">Siguiente</div>
                     <div class="neighbor-val" id="resNext">--</div>
+                    <div class="neighbor-pos" id="resNextPos">Pos: --</div>
                 </div>
             </div>
 
@@ -1422,6 +1443,7 @@
     let currentViewLote = null;
     let currentObsLote = null;
     let currentMode = 'id';
+    let currentPosSearchType = 'position';
     let lastLoteChecked = null;
     let currentMatch = null;
     let sortState = 0; 
@@ -1661,6 +1683,7 @@
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', async (e) => {
         const query = e.target.value.trim().toUpperCase();
+        currentPosSearchType = 'position';
         if (query.length === 0) { 
             document.getElementById('result').classList.remove('show'); 
             document.getElementById('batchAlert').style.display = 'none';
@@ -1670,10 +1693,46 @@
         renderResult(match);
     });
 
+    function buscarMatchPorId(query) {
+        const queryNormalizado = normalizarIdBusqueda(query);
+        if (!queryNormalizado) return null;
+        const directMatch = dbIndex[query.trim().toUpperCase()];
+        if (directMatch) return directMatch;
+        return Object.values(dbIndex).find(info => normalizarIdBusqueda(info.idReal) === queryNormalizado) || null;
+    }
+
     function searchByPos() {
         const lote = document.getElementById('loteSelect').value;
-        const pos = parseInt(document.getElementById('posInput').value);
-        if (!lote || !pos) return;
+        const rawValue = document.getElementById('posInput').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
+        const resultCard = document.getElementById('result');
+        const alertBox = document.getElementById('batchAlert');
+        const esNumero = /^\d+$/.test(rawValue);
+
+        if (!rawValue) {
+            currentPosSearchType = 'position';
+            resultCard.classList.remove('show');
+            errorMsg.style.display = 'none';
+            alertBox.style.display = 'none';
+            return;
+        }
+
+        if (!esNumero || !lote) {
+            currentPosSearchType = 'id';
+            const matchById = buscarMatchPorId(rawValue);
+            if (matchById) {
+                document.getElementById('loteSelect').value = matchById.lote;
+                renderResult(matchById);
+            } else {
+                resultCard.classList.remove('show');
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = "ID no encontrado";
+            }
+            return;
+        }
+
+        currentPosSearchType = 'position';
+        const pos = parseInt(rawValue, 10);
 
         const items = lotesGlobal[lote].items;
         if (pos > 0 && pos <= items.length) {
@@ -1720,16 +1779,33 @@
             lastLoteChecked = matchNormalizado.lote;
 
             document.getElementById('resLote').textContent = matchNormalizado.lote;
+            const resCurrentId = document.getElementById('resCurrentId');
+            const resOriginalId = document.getElementById('resOriginalId');
             
             if (currentMode === 'id') {
-                const etiquetaId = matchNormalizado.extra || matchNormalizado.idReal;
+                const etiquetaId = matchNormalizado.extra || "";
                 document.getElementById('lblMainResult').textContent = "Posición en Archivo:";
                 document.getElementById('resPos').textContent = "#" + matchNormalizado.posicion;
-                document.getElementById('resOriginalId').textContent = etiquetaId;
+                resCurrentId.textContent = matchNormalizado.idReal;
+                resCurrentId.style.display = 'block';
+                resOriginalId.textContent = etiquetaId;
+                resOriginalId.style.display = etiquetaId ? 'block' : 'none';
             } else {
-                document.getElementById('lblMainResult').textContent = "ID Encontrado:";
-                document.getElementById('resPos').textContent = matchNormalizado.idReal; 
-                document.getElementById('resOriginalId').textContent = "Posición: #" + matchNormalizado.posicion;
+                if (currentPosSearchType === 'id') {
+                    document.getElementById('lblMainResult').textContent = "Posición en Archivo:";
+                    document.getElementById('resPos').textContent = "#" + matchNormalizado.posicion;
+                    resCurrentId.textContent = matchNormalizado.idReal;
+                    resCurrentId.style.display = 'block';
+                    resOriginalId.textContent = matchNormalizado.extra || "";
+                    resOriginalId.style.display = resOriginalId.textContent ? 'block' : 'none';
+                } else {
+                    document.getElementById('lblMainResult').textContent = "ID Encontrado:";
+                    document.getElementById('resPos').textContent = matchNormalizado.idReal;
+                    resCurrentId.textContent = "";
+                    resCurrentId.style.display = 'none';
+                    resOriginalId.textContent = "#" + matchNormalizado.posicion;
+                    resOriginalId.style.display = 'block';
+                }
             }
             
             const lista = lotesGlobal[matchNormalizado.lote].items;
@@ -1737,7 +1813,9 @@
             const prevExiste = idx > 0;
             const nextExiste = idx < lista.length - 1;
             document.getElementById('resPrev').textContent = prevExiste ? lista[idx-1].id_bct : "(Inicio)";
+            document.getElementById('resPrevPos').textContent = prevExiste ? `#${idx}` : "--";
             document.getElementById('resNext').textContent = nextExiste ? lista[idx+1].id_bct : "(Fin)";
+            document.getElementById('resNextPos').textContent = nextExiste ? `#${idx + 2}` : "--";
             document.getElementById('prevBox').classList.toggle('disabled', !prevExiste);
             document.getElementById('nextBox').classList.toggle('disabled', !nextExiste);
 
