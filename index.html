@@ -25,11 +25,20 @@
             --danger: #e07a7a;
             --ok: #63d3b8;
         }
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        html {
+            width: 100%;
+            min-height: 100%;
+            overflow-x: hidden;
+        }
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             color: var(--text-main);
             margin: 0;
             padding: 24px 12px;
+            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -379,6 +388,14 @@
             font-weight: 700;
             color: #f3f5ff;
             margin-bottom: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            max-width: 100%;
+            padding: 2px 10px;
+            border-radius: 12px;
+            transition: 0.2s ease;
+            word-break: break-word;
         }
         .pos-badge {
             font-size: 2.5rem;
@@ -389,8 +406,11 @@
             margin: 8px 0 12px;
             word-break: break-all;
         }
-        .warning-mode .pos-badge {
-            color: #c86a28;
+        .warning-mode .lote-header {
+            color: #fff4e5;
+            background: rgba(255, 150, 68, 0.24);
+            border: 1px solid rgba(255, 186, 103, 0.68);
+            box-shadow: 0 0 0 3px rgba(255, 158, 76, 0.13);
         }
         .label {
             font-size: 0.72rem;
@@ -469,6 +489,84 @@
         .obs-container {
             border-top: 1px solid rgba(255, 255, 255, 0.25);
             padding-top: 14px;
+        }
+        .obs-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .obs-type-toggle {
+            display: inline-flex;
+            gap: 6px;
+            padding: 4px;
+            border-radius: 12px;
+            background: rgba(20, 44, 64, 0.35);
+            border: 1px solid rgba(190, 225, 238, 0.25);
+        }
+        .obs-type-btn {
+            position: relative;
+            border: 0;
+            border-radius: 9px;
+            padding: 8px 11px;
+            min-width: 92px;
+            color: #d7e9f4;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 800;
+            transition: 0.18s ease;
+        }
+        .obs-type-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, #5f96ba, #62b3bc);
+            box-shadow: 0 8px 18px rgba(35, 89, 122, 0.28);
+        }
+        #obsTypeInt.active {
+            background: linear-gradient(135deg, #d88443, #efae5f);
+            box-shadow: 0 8px 18px rgba(216, 132, 67, 0.32);
+        }
+        .obs-type-btn.has-content::after {
+            content: "";
+            position: absolute;
+            top: 6px;
+            right: 7px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #8ff7d0;
+            box-shadow: 0 0 0 3px rgba(143, 247, 208, 0.15);
+        }
+        .obs-type-hint {
+            color: #d7e7f4;
+            font-size: 0.74rem;
+            font-weight: 600;
+            margin: -2px 0 8px;
+            min-height: 1em;
+        }
+        .obs-modal-type {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(20, 44, 64, 0.22);
+            border: 1px solid rgba(190, 225, 238, 0.2);
+        }
+        .obs-modal-type-title {
+            color: #eff8ff;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .obs-modal-type-int {
+            border-color: rgba(240, 178, 108, 0.34);
+            background: rgba(240, 178, 108, 0.12);
         }
         .buttons-row {
             display: flex;
@@ -562,6 +660,95 @@
             box-shadow: 0 24px 52px rgba(12, 16, 62, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             position: relative;
             z-index: 1;
+        }
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(8, 22, 38, 0.58);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .confirm-overlay.show {
+            display: flex;
+        }
+        .confirm-dialog {
+            width: min(100%, 430px);
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: linear-gradient(150deg, rgba(83, 123, 150, 0.92), rgba(64, 104, 129, 0.92));
+            box-shadow: 0 26px 62px rgba(5, 18, 32, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+            padding: 22px;
+            color: #f7fbff;
+            text-align: left;
+        }
+        .confirm-top {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+        .confirm-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            color: #ffe2e2;
+            background: rgba(224, 122, 122, 0.22);
+            border: 1px solid rgba(255, 185, 185, 0.42);
+        }
+        .confirm-icon .icon {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+        }
+        .confirm-title {
+            margin: 0 0 5px;
+            font-size: 1.1rem;
+            line-height: 1.25;
+            color: #ffffff;
+        }
+        .confirm-message {
+            margin: 0;
+            color: #dcecff;
+            font-size: 0.9rem;
+            line-height: 1.45;
+        }
+        .confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+        .confirm-btn {
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.34);
+            padding: 10px 14px;
+            min-width: 112px;
+            color: #ffffff;
+            font-family: inherit;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.18s ease;
+        }
+        .confirm-btn:hover {
+            transform: translateY(-1px);
+        }
+        .confirm-cancel {
+            background: rgba(255, 255, 255, 0.13);
+            color: #e9f4ff;
+        }
+        .confirm-danger {
+            background: linear-gradient(135deg, rgba(205, 91, 91, 0.95), rgba(230, 132, 104, 0.95));
+            border-color: rgba(255, 194, 177, 0.58);
+            box-shadow: 0 10px 22px rgba(182, 80, 75, 0.3);
         }
         .modal-header {
             display: flex;
@@ -796,6 +983,20 @@
             border-radius: 12px;
             font-size: 0.8rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .obs-breakdown {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 1px;
+            align-items: flex-start;
+            line-height: 1.1;
+            font-size: 0.62rem;
+            font-weight: 800;
+        }
+        .obs-breakdown small {
+            color: rgba(255, 244, 244, 0.9);
+            font-size: 0.58rem;
+            font-weight: 800;
         }
         .btn-obs-active {
             background: rgba(224, 122, 122, 0.26);
@@ -1228,6 +1429,18 @@
                 margin-left: 0;
             }
         }
+        @media (max-width: 460px) {
+            .confirm-dialog {
+                padding: 18px;
+                border-radius: 18px;
+            }
+            .confirm-actions {
+                flex-direction: column-reverse;
+            }
+            .confirm-btn {
+                width: 100%;
+            }
+        }
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
@@ -1328,7 +1541,14 @@
             </div>
 
             <div class="obs-container">
-                <div class="label" style="margin-bottom: 5px;">Observaciones (Nube):</div>
+                <div class="obs-header-row">
+                    <div class="label">Observaciones (Nube):</div>
+                    <div class="obs-type-toggle" role="group" aria-label="Tipo de observacion">
+                        <button id="obsTypeMain" class="obs-type-btn active" type="button" onclick="switchObsType('main')">Protocolo</button>
+                        <button id="obsTypeInt" class="obs-type-btn" type="button" onclick="switchObsType('int')">INT</button>
+                    </div>
+                </div>
+                <div id="obsTypeHint" class="obs-type-hint">Comentario para protocolo</div>
                 <textarea id="txtObs" placeholder="Agregar comentario..."></textarea>
                 <div class="buttons-row">
                     <button class="btn-save" onclick="guardarComentario()">
@@ -1415,6 +1635,24 @@
     </div>
 </div>
 
+<div id="confirmOverlay" class="confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="confirm-dialog">
+        <div class="confirm-top">
+            <span class="confirm-icon">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+            </span>
+            <div>
+                <h3 id="confirmTitle" class="confirm-title">Eliminar observacion</h3>
+                <p id="confirmMessage" class="confirm-message">Esta accion quitara la observacion seleccionada.</p>
+            </div>
+        </div>
+        <div class="confirm-actions">
+            <button id="confirmCancel" class="confirm-btn confirm-cancel" type="button">Cancelar</button>
+            <button id="confirmAccept" class="confirm-btn confirm-danger" type="button">Eliminar</button>
+        </div>
+    </div>
+</div>
+
 <script>
     const firebaseConfig = {
       apiKey: "AIzaSyB-J-t0a8snfze_ITf2ev5gTfZunqH2CfE",
@@ -1446,6 +1684,10 @@
     let currentPosSearchType = 'position';
     let lastLoteChecked = null;
     let currentMatch = null;
+    let currentObsType = 'main';
+    let currentObsDoc = {};
+    let currentObsDrafts = { main: '', int: '' };
+    let confirmResolver = null;
     let sortState = 0; 
     let isDragging = false; 
     let isLoadingSource = false;
@@ -1469,11 +1711,19 @@
             currentJsonUrl = obtenerBaseGuardada();
             await cargarBaseDatos(currentJsonUrl);
             activarListeners(); 
+            activarConfirmacion();
             const sourceSwitch = document.getElementById('dbSourceSwitch');
             sourceSwitch.addEventListener('change', () => {
                 const targetUrl = sourceSwitch.checked ? JSON_URL_FINAL : JSON_URL_BASE;
                 cargarBaseDatos(targetUrl);
             });
+            const obsInput = document.getElementById('txtObs');
+            if (obsInput) {
+                obsInput.addEventListener('input', () => {
+                    currentObsDrafts[currentObsType] = obsInput.value;
+                    renderObsTypeButtons();
+                });
+            }
             document.addEventListener('keydown', handleKeyboardNav);
             document.addEventListener('mouseup', () => { isDragging = false; });
             document.addEventListener('touchend', () => { isDragging = false; });
@@ -1820,15 +2070,28 @@
             document.getElementById('nextBox').classList.toggle('disabled', !nextExiste);
 
             document.getElementById('txtObs').value = "Cargando...";
-            db.collection("observaciones").doc(currentId).get().then((doc) => {
-                if (doc.exists) document.getElementById('txtObs').value = doc.data().texto;
-                else document.getElementById('txtObs').value = "";
+            currentObsDoc = {};
+            currentObsDrafts = { main: '', int: '' };
+            renderObsTypeButtons();
+            const requestedId = currentId;
+            db.collection("observaciones").doc(requestedId).get().then((doc) => {
+                if (currentId !== requestedId) return;
+                currentObsDoc = doc.exists ? (doc.data() || {}) : {};
+                currentObsDrafts = {
+                    main: getObsText(currentObsDoc, 'main'),
+                    int: getObsText(currentObsDoc, 'int')
+                };
+                renderObsEditor();
+            }).catch(() => {
+                if (currentId === requestedId) document.getElementById('txtObs').value = "";
             });
 
             errorMsg.style.display = 'none';
             resultCard.classList.add('show');
         } else {
             currentMatch = null;
+            currentObsDoc = {};
+            currentObsDrafts = { main: '', int: '' };
             resultCard.classList.remove('show');
             alertBox.style.display = "none";
             errorMsg.style.display = 'block';
@@ -1870,30 +2133,268 @@
         }
     }
 
+    function getMainProtocolLabel(loteName) {
+        const lote = (loteName || '').toString().trim().toUpperCase();
+        if (lote.includes('TELMEX')) return 'Telmex';
+        if (lote.includes('OMNIA') || lote.includes('OMINA')) return 'Omnia';
+        return 'Protocolo';
+    }
+
+    function getMainProtocolShort(loteName) {
+        const label = getMainProtocolLabel(loteName).toUpperCase();
+        if (label === 'TELMEX') return 'TEL';
+        if (label === 'OMNIA') return 'OMN';
+        return 'PROT';
+    }
+
+    function getObsMeta(type, loteName) {
+        if (type === 'int') {
+            return {
+                field: 'texto_int',
+                dateField: 'fecha_int',
+                label: 'INT',
+                hint: 'Comentario para protocolo INT',
+                placeholder: 'Ej. Falta protocolo de INT...'
+            };
+        }
+        const mainLabel = getMainProtocolLabel(loteName);
+        return {
+            field: 'texto',
+            dateField: 'fecha',
+            label: mainLabel,
+            hint: `Comentario para protocolo ${mainLabel}`,
+            placeholder: `Ej. Falta protocolo de ${mainLabel}...`
+        };
+    }
+
+    function getObsText(obs, type) {
+        const meta = getObsMeta(type);
+        return (obs && obs[meta.field] ? obs[meta.field] : '').toString();
+    }
+
+    function hasObsText(obs, type) {
+        return getObsText(obs, type).trim() !== "";
+    }
+
+    function hasAnyObs(obs) {
+        return hasObsText(obs, 'main') || hasObsText(obs, 'int');
+    }
+
+    function getObsEntries(obs, loteName) {
+        const sourceLote = loteName || (obs ? obs.lote : '');
+        return ['main', 'int']
+            .filter(type => hasObsText(obs, type))
+            .map(type => {
+                const meta = getObsMeta(type, sourceLote);
+                return {
+                    type,
+                    label: meta.label,
+                    text: getObsText(obs, type),
+                    date: obs ? obs[meta.dateField] : null
+                };
+            });
+    }
+
+    function syncCurrentObsDraft() {
+        const txtObs = document.getElementById('txtObs');
+        if (!txtObs) return;
+        currentObsDrafts[currentObsType] = txtObs.value;
+    }
+
+    function renderObsTypeButtons() {
+        const mainBtn = document.getElementById('obsTypeMain');
+        const intBtn = document.getElementById('obsTypeInt');
+        if (!mainBtn || !intBtn) return;
+        const meta = getObsMeta(currentObsType, currentLoteName);
+        const hint = document.getElementById('obsTypeHint');
+        const txtObs = document.getElementById('txtObs');
+        mainBtn.textContent = getMainProtocolLabel(currentLoteName);
+        mainBtn.classList.toggle('active', currentObsType === 'main');
+        intBtn.classList.toggle('active', currentObsType === 'int');
+        mainBtn.classList.toggle('has-content', (currentObsDrafts.main || '').trim() !== '');
+        intBtn.classList.toggle('has-content', (currentObsDrafts.int || '').trim() !== '');
+        if (hint) hint.textContent = meta.hint;
+        if (txtObs) txtObs.placeholder = meta.placeholder;
+    }
+
+    function renderObsEditor() {
+        const txtObs = document.getElementById('txtObs');
+        const hint = document.getElementById('obsTypeHint');
+        const meta = getObsMeta(currentObsType, currentLoteName);
+        const mainBtn = document.getElementById('obsTypeMain');
+        if (mainBtn) mainBtn.textContent = getMainProtocolLabel(currentLoteName);
+        if (txtObs) {
+            txtObs.value = currentObsDrafts[currentObsType] || "";
+            txtObs.placeholder = meta.placeholder;
+        }
+        if (hint) hint.textContent = meta.hint;
+        renderObsTypeButtons();
+    }
+
+    function switchObsType(type) {
+        if (type !== 'main' && type !== 'int') return;
+        syncCurrentObsDraft();
+        currentObsType = type;
+        renderObsEditor();
+    }
+
+    function updateLocalObsDoc(type, value) {
+        const meta = getObsMeta(type, currentLoteName);
+        currentObsDoc = { ...(currentObsDoc || {}), lote: currentLoteName };
+        currentObsDoc[meta.field] = value;
+        currentObsDoc[meta.dateField] = new Date();
+        currentObsDrafts[type] = value;
+        renderObsTypeButtons();
+    }
+
+    function clearLocalObsDoc(type) {
+        const meta = getObsMeta(type, currentLoteName);
+        currentObsDoc = { ...(currentObsDoc || {}) };
+        delete currentObsDoc[meta.field];
+        delete currentObsDoc[meta.dateField];
+        currentObsDrafts[type] = "";
+        renderObsEditor();
+    }
+
+    function getLoteObsCounts(loteName) {
+        const obsDelLote = obsData.filter(o => o.lote === loteName);
+        const main = obsDelLote.filter(o => hasObsText(o, 'main')).length;
+        const int = obsDelLote.filter(o => hasObsText(o, 'int')).length;
+        const ids = obsDelLote.filter(hasAnyObs).length;
+        return { main, int, ids, total: main + int };
+    }
+
+    function csvCell(value) {
+        const text = (value ?? '').toString().replace(/"/g, '""');
+        return /[",\n\r]/.test(text) ? `"${text}"` : text;
+    }
+
+    function toDateValue(value) {
+        if (!value) return null;
+        if (value.toDate) return value.toDate();
+        if (value instanceof Date) return value;
+        if (typeof value === 'object' && typeof value.seconds === 'number') return new Date(value.seconds * 1000);
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function dateSortValue(value) {
+        const date = toDateValue(value);
+        return date ? date.getTime() : Number.MAX_SAFE_INTEGER;
+    }
+
+    function formatObsDate(value) {
+        const date = toDateValue(value);
+        return date ? date.toLocaleDateString() : "-";
+    }
+
+    function activarConfirmacion() {
+        const overlay = document.getElementById('confirmOverlay');
+        const cancelBtn = document.getElementById('confirmCancel');
+        const acceptBtn = document.getElementById('confirmAccept');
+        if (!overlay || !cancelBtn || !acceptBtn) return;
+        cancelBtn.addEventListener('click', () => cerrarConfirmacion(false));
+        acceptBtn.addEventListener('click', () => cerrarConfirmacion(true));
+        overlay.addEventListener('click', (event) => {
+            if (event.target === overlay) cerrarConfirmacion(false);
+        });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && overlay.classList.contains('show')) {
+                cerrarConfirmacion(false);
+            }
+        });
+    }
+
+    function cerrarConfirmacion(result) {
+        const overlay = document.getElementById('confirmOverlay');
+        if (overlay) overlay.classList.remove('show');
+        if (!confirmResolver) return;
+        const resolve = confirmResolver;
+        confirmResolver = null;
+        resolve(result);
+    }
+
+    function mostrarConfirmacion({ title, message, confirmText }) {
+        const overlay = document.getElementById('confirmOverlay');
+        const titleEl = document.getElementById('confirmTitle');
+        const messageEl = document.getElementById('confirmMessage');
+        const acceptBtn = document.getElementById('confirmAccept');
+        const cancelBtn = document.getElementById('confirmCancel');
+        if (!overlay || !titleEl || !messageEl || !acceptBtn || !cancelBtn) return Promise.resolve(false);
+        if (confirmResolver) cerrarConfirmacion(false);
+        titleEl.textContent = title || 'Eliminar observacion';
+        messageEl.textContent = message || 'Esta accion quitara la observacion seleccionada.';
+        acceptBtn.textContent = confirmText || 'Eliminar';
+        overlay.classList.add('show');
+        setTimeout(() => cancelBtn.focus(), 0);
+        return new Promise((resolve) => {
+            confirmResolver = resolve;
+        });
+    }
+
     function guardarComentario() {
         const txt = document.getElementById('txtObs').value;
         const indicador = document.getElementById('saveIndicator');
         if(!currentId) return;
+        const selectedType = currentObsType;
+        const selectedId = currentId;
+        const selectedLote = currentLoteName;
+        const meta = getObsMeta(selectedType, selectedLote);
+        const updateData = {
+            [meta.field]: txt,
+            [meta.dateField]: new Date(),
+            lote: selectedLote
+        };
         indicador.textContent = "Guardando...";
-        db.collection("observaciones").doc(currentId).set({
-            texto: txt, fecha: new Date(), lote: currentLoteName
-        }, { merge: true }).then(() => {
-            indicador.textContent = "Guardado";
+        db.collection("observaciones").doc(selectedId).set(updateData, { merge: true }).then(() => {
+            if (currentId === selectedId) updateLocalObsDoc(selectedType, txt);
+            indicador.textContent = `Guardado (${meta.label})`;
             setTimeout(() => indicador.textContent = "", 2000);
         });
     }
 
-    function borrarComentario() {
+    async function borrarComentario() {
+        const txtObs = document.getElementById('txtObs');
         const indicador = document.getElementById('saveIndicator');
         if(!currentId) return;
-        if(confirm("¿Seguro de eliminar esta observación?")) {
-            indicador.textContent = "Eliminando...";
-            db.collection("observaciones").doc(currentId).delete().then(() => {
-                document.getElementById('txtObs').value = "";
-                indicador.textContent = "Eliminado";
-                setTimeout(() => indicador.textContent = "", 2000);
-            });
+        const selectedType = currentObsType;
+        const selectedId = currentId;
+        const selectedLote = currentLoteName;
+        const meta = getObsMeta(selectedType, selectedLote);
+        const savedText = getObsText(currentObsDoc, selectedType).trim();
+        const currentText = txtObs ? txtObs.value.trim() : "";
+
+        if (!savedText) {
+            if (currentText) {
+                currentObsDrafts[selectedType] = "";
+                if (txtObs) txtObs.value = "";
+                renderObsTypeButtons();
+                indicador.textContent = "Texto sin guardar descartado";
+            } else {
+                indicador.textContent = `No hay observacion de ${meta.label} para eliminar`;
+            }
+            setTimeout(() => indicador.textContent = "", 2200);
+            return;
         }
+
+        const accepted = await mostrarConfirmacion({
+            title: `Eliminar observacion de ${meta.label}`,
+            message: `Se eliminara la observacion de ${meta.label} para el ID ${selectedId}.`,
+            confirmText: 'Eliminar'
+        });
+        if (!accepted) return;
+        const deleteValue = firebase.firestore.FieldValue.delete();
+        const updateData = {
+            [meta.field]: deleteValue,
+            [meta.dateField]: deleteValue,
+            lote: selectedLote
+        };
+        indicador.textContent = "Eliminando...";
+        db.collection("observaciones").doc(selectedId).set(updateData, { merge: true }).then(() => {
+            if (currentId === selectedId) clearLocalObsDoc(selectedType);
+            indicador.textContent = `Eliminado (${meta.label})`;
+            setTimeout(() => indicador.textContent = "", 2000);
+        });
     }
 
     function escapeHtml(value) {
@@ -1909,39 +2410,76 @@
         return (value || '').toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     }
 
-    function guardarObservacionDesdeModal(id, lote, button) {
+    async function guardarObservacionDesdeModal(id, lote, type, button) {
+        if (!button) {
+            button = type;
+            type = 'main';
+        }
         const card = button.closest('.obs-card');
         if (!card) return;
-        const input = card.querySelector('.obs-edit-input');
-        const indicador = card.querySelector('.obs-inline-indicator');
-        if (!input || !indicador) return;
-        const texto = input.value.trim();
-        indicador.textContent = texto ? 'Guardando...' : 'Eliminando...';
-        if (!texto) {
-            db.collection("observaciones").doc(id).delete().then(() => {
-                indicador.textContent = 'Eliminado';
-                setTimeout(() => { if (indicador) indicador.textContent = ''; }, 2000);
+        const meta = getObsMeta(type, lote);
+        const panel = button.closest('.obs-modal-type') || card;
+        const inputScoped = panel.querySelector(`.obs-edit-input[data-obs-type="${type}"]`) || panel.querySelector('.obs-edit-input');
+        const indicadorScoped = panel.querySelector('.obs-inline-indicator');
+        if (!inputScoped || !indicadorScoped) return;
+        const textoScoped = inputScoped.value.trim();
+        indicadorScoped.textContent = textoScoped ? 'Guardando...' : 'Eliminando...';
+        if (!textoScoped) {
+            const accepted = await mostrarConfirmacion({
+                title: `Eliminar observacion de ${meta.label}`,
+                message: `El comentario esta vacio. Se eliminara la observacion de ${meta.label} para el ID ${id}.`,
+                confirmText: 'Eliminar'
+            });
+            if (!accepted) {
+                indicadorScoped.textContent = '';
+                return;
+            }
+            const deleteValue = firebase.firestore.FieldValue.delete();
+            db.collection("observaciones").doc(id).set({
+                [meta.field]: deleteValue,
+                [meta.dateField]: deleteValue,
+                lote
+            }, { merge: true }).then(() => {
+                indicadorScoped.textContent = 'Eliminado';
+                setTimeout(() => { if (indicadorScoped) indicadorScoped.textContent = ''; }, 2000);
             });
             return;
         }
         db.collection("observaciones").doc(id).set({
-            texto: input.value, fecha: new Date(), lote
+            [meta.field]: inputScoped.value,
+            [meta.dateField]: new Date(),
+            lote
         }, { merge: true }).then(() => {
-            indicador.textContent = 'Guardado';
-            setTimeout(() => { if (indicador) indicador.textContent = ''; }, 2000);
+            indicadorScoped.textContent = `Guardado (${meta.label})`;
+            setTimeout(() => { if (indicadorScoped) indicadorScoped.textContent = ''; }, 2000);
         });
     }
 
-    function borrarObservacionDesdeModal(id, button) {
+    async function borrarObservacionDesdeModal(id, type, button) {
+        if (!button) {
+            button = type;
+            type = 'main';
+        }
         const card = button.closest('.obs-card');
         if (!card) return;
-        const indicador = card.querySelector('.obs-inline-indicator');
-        if (!indicador) return;
-        if (!confirm("¿Seguro de eliminar esta observación?")) return;
-        indicador.textContent = 'Eliminando...';
-        db.collection("observaciones").doc(id).delete().then(() => {
-            indicador.textContent = 'Eliminado';
-            setTimeout(() => { if (indicador) indicador.textContent = ''; }, 2000);
+        const meta = getObsMeta(type, currentObsLote);
+        const panel = button.closest('.obs-modal-type') || card;
+        const indicadorScoped = panel.querySelector('.obs-inline-indicator');
+        if (!indicadorScoped) return;
+        const accepted = await mostrarConfirmacion({
+            title: `Eliminar observacion de ${meta.label}`,
+            message: `Se eliminara la observacion de ${meta.label} para el ID ${id}.`,
+            confirmText: 'Eliminar'
+        });
+        if (!accepted) return;
+        const deleteValue = firebase.firestore.FieldValue.delete();
+        indicadorScoped.textContent = 'Eliminando...';
+        db.collection("observaciones").doc(id).set({
+            [meta.field]: deleteValue,
+            [meta.dateField]: deleteValue
+        }, { merge: true }).then(() => {
+            indicadorScoped.textContent = 'Eliminado';
+            setTimeout(() => { if (indicadorScoped) indicadorScoped.textContent = ''; }, 2000);
         });
     }
 
@@ -1968,12 +2506,24 @@
         try {
             const snapshot = await db.collection("observaciones").get();
             if (snapshot.empty) { alert("No hay observaciones."); btn.innerHTML = originalHTML; return; }
-            let csvContent = "data:text/csv;charset=utf-8,ID Protocolo,Lote,Comentario,Fecha\n"; 
+            let csvContent = "data:text/csv;charset=utf-8,ID Protocolo,Lote,Tipo,Comentario,Fecha\n";
+            const rows = [];
             snapshot.forEach(doc => {
                 const data = doc.data();
-                const fecha = data.fecha ? data.fecha.toDate().toLocaleDateString() : "-";
-                const comentarioSeguro = data.texto ? `"${data.texto.replace(/"/g, '""')}"` : "";
-                csvContent += `${doc.id},${data.lote},${comentarioSeguro},${fecha}\n`;
+                getObsEntries(data, data.lote).forEach(entry => {
+                    rows.push({
+                        id: doc.id,
+                        lote: data.lote,
+                        tipo: entry.label,
+                        comentario: entry.text,
+                        fecha: entry.date
+                    });
+                });
+            });
+            if (rows.length === 0) { alert("No hay observaciones."); btn.innerHTML = originalHTML; return; }
+            rows.sort((a, b) => dateSortValue(a.fecha) - dateSortValue(b.fecha));
+            rows.forEach(row => {
+                csvContent += `${csvCell(row.id)},${csvCell(row.lote)},${csvCell(row.tipo)},${csvCell(row.comentario)},${csvCell(formatObsDate(row.fecha))}\n`;
             });
             downloadCSV(csvContent, "reporte_observaciones_v38.csv");
             btn.textContent = "Listo";
@@ -1986,7 +2536,7 @@
         const originalHTML = btn.innerHTML;
         btn.textContent = "Generando...";
 
-        let csvContent = "data:text/csv;charset=utf-8,Lote,Estado Protocolos,Estado INT,Total IDs,IDs con Obs,Detalle Observaciones\n";
+        let csvContent = "data:text/csv;charset=utf-8,Lote,Estado Protocolos,Estado INT,Total IDs,IDs con Obs,Obs Protocolo,Obs INT,Detalle Observaciones\n";
         const lotes = Object.keys(lotesGlobal).sort();
 
         lotes.forEach(loteName => {
@@ -1994,14 +2544,23 @@
             const estadoMain = data.terminado ? "TERMINADO" : "PENDIENTE";
             const estadoInt = data.terminado_int ? "TERMINADO" : "PENDIENTE";
             const totalIDs = data.items.length;
-            const obsDelLote = obsData.filter(o => o.lote === loteName && o.texto && o.texto.trim() !== "");
-            const cantObs = obsDelLote.length;
+            const obsDelLote = obsData.filter(o => o.lote === loteName && hasAnyObs(o));
+            const counts = getLoteObsCounts(loteName);
             let detalleObs = "";
-            if (cantObs > 0) {
-                const textos = obsDelLote.map(o => `[${o.id}: ${o.texto}]`);
-                detalleObs = `"${textos.join('; ').replace(/"/g, '""')}"`;
+            if (obsDelLote.length > 0) {
+                const textos = [];
+                obsDelLote.forEach(o => {
+                    getObsEntries(o, loteName).forEach(entry => textos.push({
+                        fecha: entry.date,
+                        text: `[${o.id} - ${entry.label}: ${entry.text}]`
+                    }));
+                });
+                detalleObs = csvCell(textos
+                    .sort((a, b) => dateSortValue(a.fecha) - dateSortValue(b.fecha))
+                    .map(item => item.text)
+                    .join('; '));
             }
-            csvContent += `${loteName},${estadoMain},${estadoInt},${totalIDs},${cantObs},${detalleObs}\n`;
+            csvContent += `${csvCell(loteName)},${csvCell(estadoMain)},${csvCell(estadoInt)},${totalIDs},${counts.ids},${counts.main},${counts.int},${detalleObs}\n`;
         });
 
         downloadCSV(csvContent, "reporte_general_avance.csv");
@@ -2040,9 +2599,10 @@
             const checkedInt = data.terminado_int ? "checked" : ""; 
             const rowClass = data.terminado ? "row-finished-main" : "";
             
-            const obsCount = obsData.filter(o => o.lote === nombre && o.texto && o.texto.trim() !== "").length;
+            const obsCounts = getLoteObsCounts(nombre);
+            const mainObsShort = getMainProtocolShort(nombre);
             let obsButton = `<span class="obs-badge">0</span>`;
-            if (obsCount > 0) obsButton = `<button class="btn-obs-active" onclick="verObservaciones('${nombre}')"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>${obsCount}</span></button>`;
+            if (obsCounts.total > 0) obsButton = `<button class="btn-obs-active" onclick="verObservaciones('${nombre}')"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="3"></circle></svg><span>${obsCounts.total}</span><span class="obs-breakdown"><small>${mainObsShort} ${obsCounts.main}</small><small>INT ${obsCounts.int}</small></span></button>`;
 
             html += `<tr class="${rowClass}">
                 <td class="status-cell">
@@ -2200,21 +2760,30 @@
         let html = '';
         let count = 0;
         items.forEach((item, idx) => {
-            const obs = obsData.find(o => o.id === item.id_bct && o.texto && o.texto.trim() !== "");
-            if (obs) {
-                count++;
+            const obs = obsData.find(o => o.id === item.id_bct);
+            const entries = obs ? getObsEntries(obs, nombre) : [];
+            if (entries.length > 0) {
+                count += entries.length;
                 const idEscaped = escapeHtml(item.id_bct);
-                const txtEscaped = escapeHtml(obs.texto);
                 const idJsSafe = escapeForSingleQuote(item.id_bct);
                 const loteJsSafe = escapeForSingleQuote(nombre);
+                const tiposHtml = entries.map(entry => {
+                    const txtEscaped = escapeHtml(entry.text);
+                    const labelEscaped = escapeHtml(entry.label);
+                    const typeClass = entry.type === 'int' ? ' obs-modal-type-int' : '';
+                    return `<div class="obs-modal-type${typeClass}">
+                        <div class="obs-modal-type-title">${labelEscaped}</div>
+                        <textarea class="obs-edit-input" data-obs-type="${entry.type}">${txtEscaped}</textarea>
+                        <div class="obs-edit-actions">
+                            <button class="btn-save" onclick="guardarObservacionDesdeModal('${idJsSafe}', '${loteJsSafe}', '${entry.type}', this)">Guardar</button>
+                            <button class="btn-delete" onclick="borrarObservacionDesdeModal('${idJsSafe}', '${entry.type}', this)">Eliminar</button>
+                            <span class="obs-inline-indicator"></span>
+                        </div>
+                    </div>`;
+                }).join('');
                 html += `<div class="obs-card">
                     <div class="obs-card-header"><span class="obs-id-title">${idEscaped}</span><span class="obs-pos">Pos: #${idx+1}</span></div>
-                    <textarea class="obs-edit-input">${txtEscaped}</textarea>
-                    <div class="obs-edit-actions">
-                        <button class="btn-save" onclick="guardarObservacionDesdeModal('${idJsSafe}', '${loteJsSafe}', this)">Guardar</button>
-                        <button class="btn-delete" onclick="borrarObservacionDesdeModal('${idJsSafe}', this)">Eliminar</button>
-                        <span class="obs-inline-indicator"></span>
-                    </div>
+                    ${tiposHtml}
                 </div>`;
             }
         });
